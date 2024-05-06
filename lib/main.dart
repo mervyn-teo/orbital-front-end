@@ -46,9 +46,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
-
   
-
   Future<void> _promtLocationPerms() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
