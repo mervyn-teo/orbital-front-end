@@ -10,10 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  dio: ^4.0.0
-  flutter_polyline_points: ^2.0.0
-  google_maps_flutter: ^2.6.1
   cupertino_icons: ^1.0.6
   geolocator: ^11.0.0
 
@@ -25,4 +21,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/default_profile.png
 
