@@ -11,6 +11,12 @@ class otherProfile extends StatelessWidget {
       child: Scaffold(
         body: Column(
           children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => {Navigator.pop(context)}),
+              ),
             Center(child: Container(
               margin: EdgeInsets. fromLTRB(0, 40, 0, 0),
               child: Card(
