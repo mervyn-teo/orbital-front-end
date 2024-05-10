@@ -4,41 +4,6 @@ import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-List<Profile> testProfiles = <Profile>[
-  Profile('John', 
-          '123sdfjkhfksl', 
-          18, 
-          'its a dog eat dog world', 
-          'assets/default_profile.png'),
-  Profile('Mary', 
-          'fasdlmjnkfa', 
-          21, 
-          'its a dog eat dog world', 
-          'assets/default_profile.png'),
-  Profile('Slavroski', 
-          'gfgkmlsadmnjgf', 
-          55, 
-          'its a dog eat dog world', 
-          'assets/default_profile.png'),
-          Profile('John', 
-          '123sdfjkhfksl', 
-          18, 
-          'its a dog eat dog world', 
-          'assets/default_profile.png'),
-  Profile('Mary', 
-          'fasdlmjnkfa', 
-          21, 
-          'its a dog eat dog world', 
-          'assets/default_profile.png'),Profile('John', 
-          '123sdfjkhfksl', 
-          18, 
-          'its a dog eat dog world', 
-          'assets/default_profile.png'),
-  Profile('Mary', 
-          'fasdlmjnkfa', 
-          21, 
-          'its a dog eat dog world', 
-          'assets/default_profile.png'),];
 Profile myProf = Profile('zhang haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
 
 class homePage extends StatefulWidget {
@@ -153,7 +118,7 @@ class _homePageState extends State<homePage> {
     JsonDecoder decoder = const JsonDecoder();
     List<Profile> ret = List.empty(growable: true);
 
-    final response = await http.get(Uri.parse('http://121.7.216.177:8080/profiles')); // TODO: edit this to real URI in production
+    final response = await http.get(Uri.parse('http://13.231.75.235:8080/profiles')); // TODO: edit this to real URI in production
     
     // OK status
     if (response.statusCode == 200) {
@@ -169,6 +134,7 @@ class _homePageState extends State<homePage> {
 
   // generate page for matched people
   Future<Widget> matchedPage() async {
+    List<Card> cards = await getCards();
     return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -182,7 +148,15 @@ class _homePageState extends State<homePage> {
             style: TextStyle(fontSize: 24))),
           SizedBox(
             height: 550,
-            child: ListView(children: await getCards())
+            child: RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                });
+              },
+              child: ListView(
+                children: cards,
+              )
+            )
           )
         ]
     );
@@ -222,7 +196,7 @@ class _homePageState extends State<homePage> {
               children: [
                 Text(profile.name,),
                 Text(profile.age.toString(),),
-                Text(profile.bio,),
+                Text(profile.bio.length > 30 ? profile.bio.substring(0, 30)+'...' : profile.bio),
               ],
             )
           ],
