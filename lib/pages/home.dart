@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:orbital/Profile.dart';
 import 'package:orbital/pages/other_profile.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 List<Profile> testProfiles = <Profile>[
   Profile('John', 
@@ -48,7 +50,6 @@ class homePage extends StatefulWidget {
 
 class _homePageState extends State<homePage> {
   int? metPpl = 123456; // TODO: use API to grab this
-  List<Profile>? matchedProfiles = testProfiles; // TODO: using test profiles, remove in production 
   int pageIndex = 0;
 
   @override
@@ -75,15 +76,27 @@ class _homePageState extends State<homePage> {
               icon: Icon(Icons.account_circle_outlined), 
               label: 'Profile')
         ]),
-        body: choosePage(pageIndex),
+        body: FutureBuilder<Widget>(
+          future: choosePage(pageIndex),
+          builder: (context, snapshot) {
+            Widget children;
+            if (snapshot.hasData) {
+              children = snapshot.data!;
+            } else if (snapshot.hasError) {
+              children = Text(snapshot.error.toString());
+            } else {
+              children = const Text('Loading...');
+            }
+            return children;
+          },),
       ),
         );
   }
 
-  Widget choosePage(pageIndex) {
+  Future<Widget> choosePage(pageIndex) async{
     switch (pageIndex) {
           case 0:
-            return matchedPage();
+            return await matchedPage();
           case 1:
             return Container();
           case 2:
@@ -91,7 +104,7 @@ class _homePageState extends State<homePage> {
           case 3:
             return myProfile();
           default:
-            return matchedPage();
+            return await matchedPage();
         }
   }
 
@@ -101,10 +114,10 @@ class _homePageState extends State<homePage> {
       children: [
         Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.fromLTRB(0, 40, 0, 0),
+          margin: const EdgeInsets.fromLTRB(0, 40, 0, 0),
           child: Card(
             elevation: 4,
-            shape: CircleBorder(),
+            shape: const CircleBorder(),
             child: CircleAvatar(
               radius: 70,
               child: Image(
@@ -114,60 +127,76 @@ class _homePageState extends State<homePage> {
           )
         ),
         Container(
-          margin: EdgeInsets.fromLTRB(0, 26, 0, 0),
+          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
           child: MaterialButton(
-            child: Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),),
             color: Colors.amber,
             elevation: 4,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            onPressed: () => {}),
+            onPressed: () => {},
+            child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),)),
         ),
         Container(
-          margin: EdgeInsets.fromLTRB(0, 26, 0, 0),
-          child: Text(myProf.name, style: TextStyle(fontSize: 24),)),
+          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+          child: Text(myProf.name, style: const TextStyle(fontSize: 24),)),
         Container(
-          margin: EdgeInsets.fromLTRB(0, 12, 0, 0),
-          child: Text(myProf.age.toString(), style: TextStyle(fontSize: 18),)),
+          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+          child: Text(myProf.age.toString(), style: const TextStyle(fontSize: 18),)),
         Container(
-          margin: EdgeInsets.fromLTRB(0, 12, 0, 0),
-          child: Text(myProf.bio, style: TextStyle(fontSize: 12),)),
+          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+          child: Text(myProf.bio, style: const TextStyle(fontSize: 12),)),
       ],
     );
   }
 
-  // generate page for matched
-  Widget matchedPage() {
+  // requests and sanitise data through API
+  Future<List<Profile>> requestProfiles() async{
+    JsonDecoder decoder = const JsonDecoder();
+    List<Profile> ret = List.empty(growable: true);
+
+    final response = await http.get(Uri.parse('http://121.7.216.177:8080/profiles')); // TODO: edit this to real URI in production
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      for (var element in converted) {
+        ret.add(Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']));     
+      }
+      return ret;
+    } else {
+      throw Exception('Failed to load album');
+    }
+  } 
+
+  // generate page for matched people
+  Future<Widget> matchedPage() async {
     return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
-            padding: EdgeInsets.fromLTRB(0, 32, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 32, 0, 0),
             child: Text('you have passed by $metPpl people',
-            style: TextStyle(fontSize: 12))),
+            style: const TextStyle(fontSize: 12))),
           Container(
-            padding: EdgeInsets.fromLTRB(0, 32, 0, 0),
-            child: Text('Matched: ',
+            padding: const EdgeInsets.fromLTRB(0, 32, 0, 0),
+            child: const Text('Matched: ',
             style: TextStyle(fontSize: 24))),
-          Container(
+          SizedBox(
             height: 550,
-            child: ListView(children: getCards())
+            child: ListView(children: await getCards())
           )
         ]
     );
   }
 
   // generate cards from list of profiles
-  List<Card> getCards() {
-    if (matchedProfiles == null) {
-      return List.empty();
-    } else {
-      List<Card> ret = List.empty(growable: true);
-      for (var profile in matchedProfiles!) {
-        ret.add(makeProfileCards(profile));
-      }
-      return ret;
+  Future<List<Card>> getCards() async{
+    List<Profile>? matchedProfiles = await requestProfiles(); 
+    List<Card> ret = List.empty(growable: true);
+    for (var profile in matchedProfiles) {
+      ret.add(makeProfileCards(profile));
     }
-  } 
+    return ret;
+    } 
 
   // template for profile cards
   Card makeProfileCards(Profile profile) {
@@ -176,13 +205,14 @@ class _homePageState extends State<homePage> {
       margin: const EdgeInsets.fromLTRB(15, 16, 15, 0), 
       color: Colors.amber,
       child: InkWell(
-        onTap: ()=> {Navigator.push(context, 
-                                    MaterialPageRoute(builder: (context) => otherProfile(profile: profile)))}, // goes to the profile page
-        child: Row(
+        onTap: ()=> {
+          Navigator.push(context, 
+            MaterialPageRoute(builder: (context) => otherProfile(profile: profile)))}, // goes to the profile page
+               child: Row(
           children: [
             Container(
-              margin: EdgeInsets.all(20),
-              child: Image(image: AssetImage(profile.pfp), 
+              margin: const EdgeInsets.all(20),
+              child: Image(image: NetworkImage(profile.pfp), 
                     width: 70,
                     height: 70,
                     ),

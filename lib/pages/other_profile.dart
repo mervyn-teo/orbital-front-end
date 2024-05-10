@@ -18,28 +18,30 @@ class otherProfile extends StatelessWidget {
               onPressed: () => {Navigator.pop(context)}),
               ),
             Center(child: Container(
-              margin: EdgeInsets. fromLTRB(0, 40, 0, 0),
+              margin: const EdgeInsets. fromLTRB(0, 40, 0, 0),
               child: Card(
                 shape: const CircleBorder(),
                 elevation: 4,
                 child: CircleAvatar(
                   radius: 70,
                   child: Image(
-                    image: AssetImage(profile.pfp)),
+                    height: 280,
+                    width: 280,
+                    image: NetworkImage(profile.pfp)),
                 ),
               ))),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 12, 0, 0),
+              margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
               child: Text(profile.name,
-                          style: TextStyle(fontSize: 36),)),
+                          style: const TextStyle(fontSize: 36),)),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 12, 0, 0),
+              margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
               child: Text(profile.age.toString(),
-                          style: TextStyle(fontSize: 24),)),
+                          style: const TextStyle(fontSize: 24),)),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 12, 0, 0),
+              margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
               child: Text(profile.bio,
-                          style: TextStyle(fontSize: 15),),
+                          style: const TextStyle(fontSize: 15),),
               ),
             ],
           ),
