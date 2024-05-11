@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:orbital/Profile.dart';
 import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:chat_bubbles/chat_bubbles.dart';
 
 Profile myProf = Profile('zhang haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
 
@@ -15,6 +18,8 @@ class homePage extends StatefulWidget {
 
 class _homePageState extends State<homePage> {
   int? metPpl = 123456; // TODO: use API to grab this
+
+  // this determines which page is loaded
   int pageIndex = 0;
 
   @override
@@ -65,7 +70,7 @@ class _homePageState extends State<homePage> {
           case 1:
             return Container();
           case 2:
-            return Container();
+            return chatList();
           case 3:
             return myProfile();
           default:
@@ -118,7 +123,7 @@ class _homePageState extends State<homePage> {
     JsonDecoder decoder = const JsonDecoder();
     List<Profile> ret = List.empty(growable: true);
 
-    final response = await http.get(Uri.parse('http://13.231.75.235:8080/profiles')); // TODO: edit this to real URI in production
+    final response = await http.get(Uri.parse('http://13.231.75.235:8080/profiles'));
     
     // OK status
     if (response.statusCode == 200) {
@@ -205,6 +210,60 @@ class _homePageState extends State<homePage> {
       );
   }
 
+  Future<Widget> chatList() async {
+    List<Card> cards = await getCards(); // TODO: make cards specific for chattable, now using profile directly
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: Text('Chat',
+            style: TextStyle(fontSize: 45),
+            ),
+        ),
+        SizedBox(
+          height: 618,
+          child: RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+              });
+            },
+            child: ListView(
+              children: cards,
+              ),
+            ),
+      ),
+      ]
+    );
+  }
+
+  Widget myChat() {
+    return Column(
+      children: <Widget>[
+        myChatBubble('hello, its me'),
+        otherChatBubble('i see its me'),
+        
+      ],
+    );
+  }
+
+  Widget myChatBubble(String text) {
+    return BubbleNormal(
+      color: Colors.grey.shade300,
+      isSender: true,
+      tail: true,
+      text: text
+    );
+  }
+
+  Widget otherChatBubble(String text) {
+    return BubbleNormal(
+      color: Colors.blue.shade300,
+      textStyle: TextStyle(color: Colors.white),
+      isSender: false,
+      tail: true,
+      text: text
+    );
+  }
 
 }
 
