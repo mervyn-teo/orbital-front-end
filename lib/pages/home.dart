@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -48,6 +50,7 @@ class _homePageState extends State<homePage> {
         ]),
         body: FutureBuilder<Widget>(
           future: choosePage(pageIndex),
+          initialData: const Text('Loading louder...'),
           builder: (context, snapshot) {
             Widget children;
             if (snapshot.hasData) {
@@ -56,7 +59,7 @@ class _homePageState extends State<homePage> {
               children = Text(snapshot.error.toString());
             } else {
               children = const Text('Loading...');
-            }
+            } // TODO: this cant handle situation gracefully when server is down
             return children;
           },),
       ),
@@ -68,7 +71,7 @@ class _homePageState extends State<homePage> {
           case 0:
             return await matchedPage();
           case 1:
-            return Container();
+            return settingPage();
           case 2:
             return chatList();
           case 3:
@@ -123,7 +126,7 @@ class _homePageState extends State<homePage> {
     JsonDecoder decoder = const JsonDecoder();
     List<Profile> ret = List.empty(growable: true);
 
-    final response = await http.get(Uri.parse('http://13.231.75.235:8080/profiles'));
+    final response = await http.get(Uri.parse('http://13.231.75.235:8080/profiles')).timeout(const Duration(seconds: 5));
     
     // OK status
     if (response.statusCode == 200) {
@@ -133,7 +136,7 @@ class _homePageState extends State<homePage> {
       }
       return ret;
     } else {
-      throw Exception('Failed to load album');
+      throw Exception('Failed to load');
     }
   } 
 
@@ -236,12 +239,12 @@ class _homePageState extends State<homePage> {
     );
   }
 
+  // TODO: implement logic for this
   Widget myChat() {
     return Column(
       children: <Widget>[
         myChatBubble('hello, its me'),
         otherChatBubble('i see its me'),
-        
       ],
     );
   }
@@ -264,6 +267,61 @@ class _homePageState extends State<homePage> {
       text: text
     );
   }
+
+
+  // TODO: this is not very elegant, change this soon
+  // the default values of settings
+  // MUST BE GLOBAL unless better solution is found
+  bool settingsBoolean1 = false;
+  bool settingsBoolean2 = true;
+
+  Widget settingPage() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('description 1'),
+              Switch(
+                value: settingsBoolean1, 
+                onChanged: (bool val){
+                  setState(() {
+                    settingsBoolean1 = val;
+                  });
+                }
+                )
+              ],
+                ),
+        ),
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('description 2'),
+              Switch(
+                value: settingsBoolean2, 
+                onChanged: (bool val){
+                  setState(() {
+                    settingsBoolean2 = val;
+                  });
+                }
+                )
+              ],
+                ),
+        ),
+         ],
+      ),
+    );
+  }
+
+
+
+
 
 }
 
