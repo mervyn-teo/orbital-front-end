@@ -131,10 +131,15 @@ class _homePageState extends State<homePage> {
     // OK status
     if (response.statusCode == 200) {
       var converted = decoder.convert(response.body);
-      for (var element in converted) {
-        ret.add(Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']));     
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        throw Exception(converted['err_msg']);
+      } else {
+        for (var element in converted['body'][0]) {
+          ret.add(Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']));     
+        }
+        return ret;
       }
-      return ret;
     } else {
       throw Exception('Failed to load');
     }
