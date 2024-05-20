@@ -62,9 +62,9 @@ String pwd = "";
               Container(
                 margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                 child: MaterialButton(
-                        onPressed: (){
+                        onPressed: () async {
                           register();
-                        },    // TODO: implement this register function
+                        },
                         color: Colors.amber,
                         child: const Text(
                           "Register", 
@@ -80,7 +80,7 @@ String pwd = "";
   }
 
 
-  void register() async {
+  Future<bool> register() async {
     // TODO: (maybe) add email validation by sending email with comfirmation code
     // validate email content
     if (!EmailValidator.validate(email)) {
@@ -129,11 +129,13 @@ String pwd = "";
                 ),
                 title: Text("Registration Success!"),
                 content: Text("you can proceed to login now"),
-            );
+            ); 
           }
         );
+        return true;
       }
     }
+    return false;
   }
   
 
