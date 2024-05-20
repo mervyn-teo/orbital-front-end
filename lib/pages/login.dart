@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:orbital/pages/register.dart';
 
 class login extends StatefulWidget {
@@ -11,6 +10,9 @@ class login extends StatefulWidget {
 }
 
 class _loginState extends State<login> {
+  late String email;
+  late String password;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -23,7 +25,7 @@ class _loginState extends State<login> {
               onPressed: () => {Navigator.pop(context)}),
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(20, 50, 10, 50),
+                padding: const EdgeInsets.fromLTRB(20, 50, 10, 50),
                 alignment: Alignment.center,
                 child: const Text(
                   "Account Login",
@@ -31,46 +33,44 @@ class _loginState extends State<login> {
                     fontSize: 40),)
                 ),
               Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.amber
-                    )
-                    ),
                 padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                 margin: const EdgeInsets.fromLTRB(20, 10, 20, 0) ,
                 child: const TextField(
                   style: TextStyle(fontSize: 20),
                   enableSuggestions: true,
                   maxLines: 1,
-                  decoration: InputDecoration.collapsed(
-                    hintText: "email",),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "e-mail", ),
                   keyboardType: TextInputType.emailAddress,)),
               Container(
-                decoration: BoxDecoration(border: Border.all(color: Colors.amber)),
                 padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                 margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                 child: const TextField(
                   style: TextStyle(fontSize: 20),
                   maxLines: 1,
-                  decoration: InputDecoration.collapsed(
-                    hintText: "password", ),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "password", ),
                   obscureText: true, 
                   obscuringCharacter: "*")),
               Container(
-                margin: const EdgeInsets.fromLTRB(25, 0, 20, 0),
+                margin: const EdgeInsets.fromLTRB(25, 0, 30, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    MaterialButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const register()));
-                      },
-                      color: null,
-                      child: const Text(
-                        "don't have an account? sign up here",
-                        textAlign: TextAlign.left,
-                      ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                      child: RichText(
+                          text: TextSpan(
+                            text: "don't have an account? sign up here",
+                            style: TextStyle(color: Colors.grey),
+                            recognizer: TapGestureRecognizer() ..onTap = () {                        
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const register()));
+                              }
+                            ),
+                          textAlign: TextAlign.left,
+                        ),
                     ),
                     MaterialButton(
                         onPressed: (){},    // TODO: implement this login function
@@ -88,5 +88,9 @@ class _loginState extends State<login> {
               ),
         ),
       );
+  }
+
+  void login() {
+    
   }
 }

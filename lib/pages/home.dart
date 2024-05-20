@@ -1,8 +1,5 @@
-import 'dart:ffi';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:orbital/Profile.dart';
 import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
@@ -209,7 +206,7 @@ class _homePageState extends State<homePage> {
               children: [
                 Text(profile.name,),
                 Text(profile.age.toString(),),
-                Text(profile.bio.length > 30 ? profile.bio.substring(0, 30)+'...' : profile.bio),
+                Text(profile.bio.length > 30 ? '${profile.bio.substring(0, 30)}...' : profile.bio),
               ],
             )
           ],
@@ -223,8 +220,8 @@ class _homePageState extends State<homePage> {
     return Column(
       children: [
         Container(
-          margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: Text('Chat',
+          margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: const Text('Chat',
             style: TextStyle(fontSize: 45),
             ),
         ),
@@ -266,7 +263,7 @@ class _homePageState extends State<homePage> {
   Widget otherChatBubble(String text) {
     return BubbleNormal(
       color: Colors.blue.shade300,
-      textStyle: TextStyle(color: Colors.white),
+      textStyle: const TextStyle(color: Colors.white),
       isSender: false,
       tail: true,
       text: text
