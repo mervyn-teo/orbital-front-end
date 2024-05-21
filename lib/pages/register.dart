@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 
@@ -82,6 +81,7 @@ String pwd = "";
 
   Future<bool> register() async {
     // TODO: (maybe) add email validation by sending email with comfirmation code
+    
     // validate email content
     if (!EmailValidator.validate(email)) {
       showDialog(

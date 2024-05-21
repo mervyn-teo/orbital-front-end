@@ -65,11 +65,11 @@ class _loginState extends State<login> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                      margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                       child: RichText(
                           text: TextSpan(
                             text: "don't have an account? sign up here",
-                            style: TextStyle(color: Colors.grey),
+                            style: const TextStyle(color: Colors.grey),
                             recognizer: TapGestureRecognizer() ..onTap = () {                        
                               Navigator.push(context, MaterialPageRoute(builder: (context) => const register()));
                               }
@@ -154,7 +154,7 @@ class _loginState extends State<login> {
   }
 
   Future<String> loginResponse(String email, String pwd) async {
-    JsonDecoder decoder = JsonDecoder();
+    JsonDecoder decoder = const JsonDecoder();
     String retStatus = "";
 
     final response = await http.post(Uri.parse('http://13.231.75.235:8080/login'),

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:orbital/Profile.dart';
 import 'package:orbital/pages/other_profile.dart';
