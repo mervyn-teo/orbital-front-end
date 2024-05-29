@@ -1,16 +1,10 @@
-# orbital
+# Hot & Cold
+This is a location-based matchmaking mobile application.
 
-A new Flutter project.
+## To use our application
+### Andriod
+🔍 Find suitable APK in released
+😆 [Download](https://github.com/mervyn-teo/orbital-front-end/releases/latest), install and enjoy!
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### IOS
+🏗️ We currently do not have a IOS version of this application, but it is commming soon 
