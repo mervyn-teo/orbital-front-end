@@ -98,11 +98,26 @@ String pwd = "";
           );
       }
       );
-    } else {
-      String errMsg = await registerSuccess(email, pwd).catchError((e) {
+    } else if (pwd.length < 5) {
+        showDialog(
+        context: context, 
+        builder: (context) {
+          return const AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(20)
+              )
+              ),
+              title: Text("invalid password!"),
+              content: Text("please make sure your password is longer than 5 characters!"),
+          );
+      }
+      );
+    } else{
+      var responses = await registerSuccess(email, pwd).catchError((e) {
         return "Server response timeout!";
       });
-      if (errMsg != "ok") {
+      if (responses['err_msg'] != "ok") {
         showDialog(
           context: context, 
           builder: (context) {
@@ -113,25 +128,13 @@ String pwd = "";
                 )
                 ),
                 title: const Text("Registration failed"),
-                content: Text(errMsg),
+                content: Text(responses['err_msg']),
             );
           }
         );
       } else {
-        showDialog(
-          context: context, 
-          builder: (context) {
-            return  const AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(20)
-                )
-                ),
-                title: Text("Registration Success!"),
-                content: Text("you can proceed to login now"),
-            ); 
-          }
-        );
+          //success
+          Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : responses['body'][1]});
         return true;
       }
     }
@@ -139,19 +142,37 @@ String pwd = "";
   }
   
 
-  Future<String> registerSuccess(String email, String pwd,) async {
+  Future<dynamic> registerSuccess(String email, String pwd,) async {
     JsonDecoder decoder = const JsonDecoder();
     String retStatus = "";
 
+    try {
     final response = await http.post(Uri.parse('http://13.231.75.235:8080/register'),
       body: jsonEncode(<String, String>{
         "email": email,
         "pwd": pwd
       }))
       .timeout(const Duration(seconds: 5));
-      
-      var converted = decoder.convert(response.body);
 
-    return converted['err_msg'];
+      final Map<String, dynamic> converted = decoder.convert(response.body);
+
+      return converted;
+    } on Exception catch (e) {
+      showDialog(
+          context: context, 
+          builder: (context) {
+            return  AlertDialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(20)
+                )
+                ),
+                title: const Text("Registration failed"),
+                content: Text(e.toString()),
+            );
+          }
+        );
+    }
+
   }
 }

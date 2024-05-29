@@ -7,7 +7,7 @@ import 'package:orbital/pages/register.dart';
 
 
 void main() => runApp(MaterialApp(
-  initialRoute: '/profilesetting', // TODO: make home() run first for testing, remove for actual product
+  initialRoute: '/', // TODO: make home() run first for testing, remove for actual product
   routes: {
     '/': (context) => const loading(),
     '/home': (context) => const homePage(),

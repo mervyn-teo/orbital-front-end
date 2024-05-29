@@ -4,6 +4,7 @@ import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Profile myProf = Profile('zhang haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
 
@@ -16,7 +17,7 @@ class homePage extends StatefulWidget {
 
 class _homePageState extends State<homePage> {
   int? metPpl = 123456; // TODO: use API to grab this
-
+  
   // this determines which page is loaded
   int pageIndex = 0;
 
@@ -78,7 +79,9 @@ class _homePageState extends State<homePage> {
   }
 
   //generate page for my profile
-  Widget myProfile() {
+  Future<Widget> myProfile() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    
     return Column(
       children: [
         Container(
@@ -90,29 +93,29 @@ class _homePageState extends State<homePage> {
             child: CircleAvatar(
               radius: 70,
               child: Image(
-                image: AssetImage(myProf.pfp)
+                image: NetworkImage(prefs.getString('pfp')!)
               )
             )
           )
         ),
+        // Container(
+        //   margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+        //   child: MaterialButton(
+        //     color: Colors.amber,
+        //     elevation: 4,
+        //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        //     onPressed: () => {},
+        //     child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),)),
+        // ),
         Container(
           margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-          child: MaterialButton(
-            color: Colors.amber,
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            onPressed: () => {},
-            child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),)),
-        ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-          child: Text(myProf.name, style: const TextStyle(fontSize: 24),)),
+          child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 24),)),
         Container(
           margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-          child: Text(myProf.age.toString(), style: const TextStyle(fontSize: 18),)),
+          child: Text(prefs.getInt('age').toString()!, style: const TextStyle(fontSize: 18),)),
         Container(
           margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-          child: Text(myProf.bio, style: const TextStyle(fontSize: 12),)),
+          child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 12),)),
       ],
     );
   }

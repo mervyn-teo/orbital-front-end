@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital/pages/register.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -21,12 +22,6 @@ class _loginState extends State<login> {
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
-          Container(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => {Navigator.pop(context)}),
-              ),
               Container(
                 padding: const EdgeInsets.fromLTRB(20, 50, 10, 50),
                 alignment: Alignment.center,
@@ -97,7 +92,7 @@ class _loginState extends State<login> {
       );
   }
 
-  Future<bool> login() async {
+  void login() async {
      if (!EmailValidator.validate(email)) {
       showDialog(
         context: context, 
@@ -133,30 +128,16 @@ class _loginState extends State<login> {
           }
         );
       } else {
-        showDialog(
-          context: context, 
-          builder: (context) {
-            return  const AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(20)
-                )
-                ),
-                title: Text("Login Success!"),
-                content: Text("you have sucessfully logged in"),
-            );
-          }
-        );
-        return true;
+        Navigator.popAndPushNamed(context, '/home');
       }
     }
-    return false;
   }
 
   Future<String> loginResponse(String email, String pwd) async {
     JsonDecoder decoder = const JsonDecoder();
     String retStatus = "";
 
+    try {
     final response = await http.post(Uri.parse('http://13.231.75.235:8080/login'),
       body: jsonEncode(<String, String>{
         "email": email,
@@ -166,6 +147,16 @@ class _loginState extends State<login> {
       
       var converted = decoder.convert(response.body);
 
-    return converted['err_msg'];  
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('name', converted['body'][0]['name']);
+        await prefs.setString('bio', converted['body'][0]['bio']);
+        await prefs.setInt('age', converted['body'][0]['age']);
+        await prefs.setString('id', converted['body'][0]['id']);
+        await prefs.setString('pfp', converted['body'][0]['pfp']);
+
+      return converted['err_msg'];  
+    } on Exception catch(e) {
+      return e.toString();
+    }
   }
 }
