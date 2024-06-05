@@ -110,7 +110,7 @@ class _loginState extends State<login> {
       );
     } else {
       String errMsg = await loginResponse(email, password).catchError((e) {
-        return "Server response timeout!";
+        return e.toString();
       });
       if (errMsg != "ok") {
         showDialog(
@@ -147,12 +147,17 @@ class _loginState extends State<login> {
       
       var converted = decoder.convert(response.body);
 
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      // check if resonse is not ok
+      if (converted['err_msg'] == "ok") {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('name', converted['body'][0]['name']);
         await prefs.setString('bio', converted['body'][0]['bio']);
         await prefs.setInt('age', converted['body'][0]['age']);
         await prefs.setString('id', converted['body'][0]['id']);
         await prefs.setString('pfp', converted['body'][0]['pfp']);
+      }
+
+
 
       return converted['err_msg'];  
     } on Exception catch(e) {
