@@ -112,7 +112,7 @@ class _homePageState extends State<homePage> {
           child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 24),)),
         Container(
           margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-          child: Text(prefs.getInt('age').toString()!, style: const TextStyle(fontSize: 18),)),
+          child: Text(prefs.getInt('age').toString(), style: const TextStyle(fontSize: 18),)),
         Container(
           margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
           child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 12),)),

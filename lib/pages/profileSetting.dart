@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital/profile.dart';
@@ -16,6 +17,8 @@ class profileSettings extends StatefulWidget {
 class _profileSettingsState extends State<profileSettings> {
   Profile profile = Profile("", "", 0, "", "https://static-00.iconduck.com/assets.00/profile-circle-icon-256x256-cm91gqm2.png");
 
+  XFile? imageFile = XFile("assets/default_profile.png");  
+
   @override
   Widget build(BuildContext context) {
     final arguments = (ModalRoute.of(context)?.settings.arguments ?? <String, dynamic>{}) as Map;
@@ -26,25 +29,28 @@ class _profileSettingsState extends State<profileSettings> {
           children: [
             Container(
               margin: const EdgeInsets.fromLTRB(0, 40, 0, 0),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 60,
-                backgroundImage: NetworkImage("https://static-00.iconduck.com/assets.00/profile-circle-icon-256x256-cm91gqm2.png"), // local filepath, default is a placeholder image
-                // foregroundImage:  TODO: this suppose to be set to uploaded image
+                backgroundImage: const NetworkImage("https://static-00.iconduck.com/assets.00/profile-circle-icon-256x256-cm91gqm2.png"), // local filepath, default is a placeholder image
+                foregroundImage: FileImage(File(imageFile!.path)),
               ),
             ),
-            // Container(
-            //   margin: const EdgeInsets.all(20),
-            //   child: MaterialButton(
-            //     color: Colors.amber,
-            //     onPressed: () {
-            //       changeProfile();
-            //     }, // TODO: make the upload function
-            //     shape: const RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.all(Radius.circular(6))
-            //     ),
-            //     child: const Text("upload profile picture"),
-            //     ),
-            // ),
+            Container(
+              margin: const EdgeInsets.all(20),
+              child: MaterialButton(
+                color: Colors.amber,
+                onPressed: () async {
+                  imageFile = await changeProfile();
+                  setState(() {
+                    imageFile = imageFile;
+                  });
+                }, // TODO: make the upload function
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(6))
+                ),
+                child: const Text("upload profile picture"),
+                ),
+            ),
               Container(
                 margin: const EdgeInsets.fromLTRB(25, 10, 25, 0),
                 child: TextField(
@@ -101,19 +107,28 @@ class _profileSettingsState extends State<profileSettings> {
   // this is for profile pic stuff
   // TODO: implement this
 
-  // Future<File> changeProfile() async {
-  //   final ImagePicker picker = ImagePicker();
-  //   final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-  //   if (image != null) {
-  //     File ret = File(image.path);
-  //     return ret;
-  //   }
-  //   return File("asset/default_profile.png");
-  // } 
+  Future<XFile> changeProfile() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 600,
+      maxWidth: 600,
+    );
 
-  // Future<String> uploadProfile() {
-  //   return;
-  // }
+    if (image != null) {
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressQuality: 90,
+        compressFormat: ImageCompressFormat.jpg
+      );
+      
+      if (croppedFile == null) return XFile("asset/default_profile.png");
+      return XFile(croppedFile.path);
+    }
+
+    return XFile("asset/default_profile.png");
+  } 
   
 
   Future<void> profileCreation() async {
@@ -161,9 +176,35 @@ class _profileSettingsState extends State<profileSettings> {
     }
   }
 
+  Future<void> uploadPfp(String id) async {
+    print('im before read as byte');
+    var body = await imageFile!.readAsBytes();
+    print('im after read as byte');
+    var resonse = await http.put(
+      Uri.parse('https://3x4ub88a07.execute-api.ap-northeast-1.amazonaws.com/orbital/orbital-media/${id}.jpg'), 
+      headers: {
+        'Content-Type': 'image/jpg',
+      },
+      body: body
+    );
+      print('im after read as byte');
+
+    if (resonse.statusCode != 200) {
+      // error
+      throw Exception(resonse.reasonPhrase);
+    }
+  }
+
   Future<Map<String, dynamic>> addProfile() async {
     JsonDecoder decoder = const JsonDecoder();
     String retStatus = "";
+
+    try {
+      await uploadPfp(profile.id);
+      profile.pfp = 'https://orbital-media.s3.ap-northeast-1.amazonaws.com/${profile.id}.jpg';
+    } catch (e) {
+      profile.pfp = 'https://static-00.iconduck.com/assets.00/profile-circle-icon-256x256-cm91gqm2.png';
+    }
 
     final response = await http.post(Uri.parse('http://13.231.75.235:8080/profiles'),
       body: jsonEncode({
@@ -174,7 +215,10 @@ class _profileSettingsState extends State<profileSettings> {
         "pfp": profile.pfp
       }))
       .timeout(const Duration(seconds: 5));
-      
+      if (response.statusCode != 201) {
+        // not ok
+        throw Exception(response.reasonPhrase);
+      }
       Map<String, dynamic> converted = decoder.convert(response.body);
 
     return converted;
