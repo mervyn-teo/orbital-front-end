@@ -12,10 +12,10 @@ class loading extends StatefulWidget {
 class _loadingState extends State<loading> {
   @override
   Widget build(BuildContext context) {
-    precacheImage(AssetImage('assets/loadingwallpaper.png'), context);
-    precacheImage(AssetImage('assets/logo.png'), context);
-    ImageProvider loadedWallpaper = AssetImage('assets/loadingwallpaper.png');
-    ImageProvider logo = AssetImage('assets/logo.png');
+    precacheImage(const AssetImage('assets/loadingwallpaper.png'), context);
+    precacheImage(const AssetImage('assets/logo.png'), context);
+    ImageProvider loadedWallpaper = const AssetImage('assets/loadingwallpaper.png');
+    ImageProvider logo = const AssetImage('assets/logo.png');
     return Scaffold(
       body: FutureBuilder(
         future: hasLoggedIn(), 
@@ -47,8 +47,8 @@ class _loadingState extends State<loading> {
                   width: 300,  // Adjust the size as needed
                   height: 300, // Adjust the size as needed
                 ),
-                SizedBox(height: 5),// Add spacing between logo and spinner
-                SpinKitPouringHourGlass(
+                const SizedBox(height: 5),// Add spacing between logo and spinner
+                const SpinKitPouringHourGlass(
                   color: Colors.blueAccent,
                   size: 120.0,
                 ),
