@@ -98,15 +98,17 @@ class _homePageState extends State<homePage> {
             )
           )
         ),
-        // Container(
-        //   margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-        //   child: MaterialButton(
-        //     color: Colors.amber,
-        //     elevation: 4,
-        //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        //     onPressed: () => {},
-        //     child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),)),
-        // ),
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+          child: MaterialButton(
+            color: Colors.amber,
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            onPressed: () {
+              Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : prefs.getString('id')});
+            },
+            child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),)),
+        ),
         Container(
           margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
           child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 24),)),

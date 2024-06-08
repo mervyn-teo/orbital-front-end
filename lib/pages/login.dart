@@ -62,7 +62,7 @@ class _loginState extends State<login> {
             child: RichText(
               text: TextSpan(
                 children: [
-                  TextSpan(
+                  const TextSpan(
                     text: "Don't have an account? ",
                     style: TextStyle(
                       color: Colors.grey,
@@ -70,7 +70,7 @@ class _loginState extends State<login> {
                   ),
                   TextSpan(
                     text: "Sign up here",
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.blue,
                       decoration: TextDecoration.underline,
                     ),
