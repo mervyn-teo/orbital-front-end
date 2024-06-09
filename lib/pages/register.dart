@@ -27,10 +27,10 @@ String pwd = "";
               onPressed: () => {Navigator.pop(context)}),
               ),
               Container(
-                padding: const EdgeInsets.fromLTRB(20, 50, 10, 50),
+                padding: const EdgeInsets.fromLTRB(20, 50, 10, 30),
                 alignment: Alignment.center,
                 child: const Text(
-                  "Account register",
+                  "Account Register",
                   style: TextStyle(
                     fontSize: 40),)
                 ),
@@ -44,7 +44,7 @@ String pwd = "";
                   onChanged: (value) {email = value;},
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: "e-mail", ),
+                    labelText: "E-mail", ),
                   keyboardType: TextInputType.emailAddress,)),
               Container(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -55,7 +55,7 @@ String pwd = "";
                   onChanged: (value) {pwd = value;},
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: "password", ),
+                    labelText: "Password", ),
                   obscureText: true, 
                   obscuringCharacter: "*")),
               Container(

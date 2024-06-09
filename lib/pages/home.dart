@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Profile myProf = Profile('zhang haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
+Profile myProf = Profile('Zhang Haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
 
 class homePage extends StatefulWidget {
   const homePage({super.key});
