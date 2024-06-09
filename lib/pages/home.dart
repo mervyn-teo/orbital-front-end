@@ -4,6 +4,7 @@ import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:orbital/tag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Profile myProf = Profile('zhang haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
@@ -72,7 +73,7 @@ class _homePageState extends State<homePage> {
           case 2:
             return chatList();
           case 3:
-            return myProfile();
+            return await myProfile();
           default:
             return await matchedPage();
         }
@@ -81,6 +82,7 @@ class _homePageState extends State<homePage> {
   //generate page for my profile
   Future<Widget> myProfile() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    Tag tags = await ;
     
     return Column(
       children: [
@@ -118,6 +120,9 @@ class _homePageState extends State<homePage> {
         Container(
           margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
           child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 12),)),
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+          child: const Text('Tags', style: TextStyle(fontSize: 24),)),
       ],
     );
   }
@@ -138,6 +143,30 @@ class _homePageState extends State<homePage> {
       } else {
         for (var element in converted['body'][0]) {
           ret.add(Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']));     
+        }
+        return ret;
+      }
+    } else {
+      throw Exception('Failed to load');
+    }
+  } 
+
+    // requests and sanitise data through API
+  Future<List<Tag>> requestTags(String id) async{
+    JsonDecoder decoder = const JsonDecoder();
+    List<Tag> ret = List.empty(growable: true);
+
+    final response = await http.get(Uri.parse('http://13.231.75.235:8080/tags',), body: {"id": id}).timeout(const Duration(seconds: 5),);
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        throw Exception(converted['err_msg']);
+      } else {
+        for (var element in converted['body'][0]) {
+          ret.add(Tag(element['id'], element['tag']));     
         }
         return ret;
       }
