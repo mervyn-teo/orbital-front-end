@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:orbital/pages/register.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:auth_buttons/auth_buttons.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -21,7 +23,7 @@ class _loginState extends State<login> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.yellow[50],
+        backgroundColor: Colors.grey[300],
         body: Column(children: [
           SizedBox(height: 150),
           Container(
@@ -62,7 +64,7 @@ class _loginState extends State<login> {
             child: RichText(
               text: TextSpan(
                 children: [
-                  const TextSpan(
+                   TextSpan(
                     text: "Don't have an account? ",
                     style: TextStyle(
                       color: Colors.grey,
@@ -99,11 +101,46 @@ class _loginState extends State<login> {
                     color: Colors.black),
               )
           ),
+          SizedBox(height: 20),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Divider()
+              ),
+              Text("   OR continue with  "),
+              Expanded(
+                child: Divider()
+              ),
+            ]
+          ),
+          SizedBox(height: 20),
+          GoogleAuthButton(
+            onPressed: () {
+              // your implementation
+              setState(() {
+              });
+            },
+            style: AuthButtonStyle(
+              margin: const EdgeInsets.only(bottom: 20),
+            ),
+          ),
+          FacebookAuthButton(
+            onPressed: () {
+              // your implementation
+              setState(() {
+              });
+            },
+            style: AuthButtonStyle(
+              margin: const EdgeInsets.only(bottom: 20),
+            ),
+          ),
         ],
         ),
       ),
     );
   }
+
+
 
   void login() async {
     if (!EmailValidator.validate(email)) {
