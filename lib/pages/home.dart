@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:orbital/Profile.dart';
 import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
@@ -82,7 +84,7 @@ class _homePageState extends State<homePage> {
   //generate page for my profile
   Future<Widget> myProfile() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    Tag tags = await ;
+    List<Center> tags = await requestTags(prefs.getString('id')!);
     
     return Column(
       children: [
@@ -123,6 +125,17 @@ class _homePageState extends State<homePage> {
         Container(
           margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
           child: const Text('Tags', style: TextStyle(fontSize: 24),)),
+        SizedBox(
+          height: 80,
+          child: Center(
+            child: ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(20),
+              scrollDirection: Axis.horizontal,
+              children: tags,
+            ),
+          )
+        )
       ],
     );
   }
@@ -152,11 +165,11 @@ class _homePageState extends State<homePage> {
   } 
 
     // requests and sanitise data through API
-  Future<List<Tag>> requestTags(String id) async{
+  Future<List<Center>> requestTags(String id) async{
     JsonDecoder decoder = const JsonDecoder();
-    List<Tag> ret = List.empty(growable: true);
+    List<Center> ret = List.empty(growable: true);
 
-    final response = await http.get(Uri.parse('http://13.231.75.235:8080/tags',), body: {"id": id}).timeout(const Duration(seconds: 5),);
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/tags',), body: jsonEncode(<String, String>{"id": id})).timeout(const Duration(seconds: 5),);
     
     // OK status
     if (response.statusCode == 200) {
@@ -166,7 +179,20 @@ class _homePageState extends State<homePage> {
         throw Exception(converted['err_msg']);
       } else {
         for (var element in converted['body'][0]) {
-          ret.add(Tag(element['id'], element['tag']));     
+          ret.add(Center(
+            child: Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+              elevation: 4,
+              color: Colors.amber,
+              child: SizedBox(
+                width: 60,
+                child: Center(
+                  child: Text(
+                    element['tag'],
+                  ),
+                )),
+              ),
+          ));     
         }
         return ret;
       }
@@ -224,7 +250,7 @@ class _homePageState extends State<homePage> {
       child: InkWell(
         onTap: ()=> {
           Navigator.push(context, 
-            MaterialPageRoute(builder: (context) => otherProfile(profile: profile)))}, // goes to the profile page
+            MaterialPageRoute(builder: (context) => otherProfile(profile: profile, )))}, // goes to the profile page
                child: Row(
           children: [
             Container(
