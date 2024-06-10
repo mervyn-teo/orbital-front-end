@@ -17,6 +17,8 @@ class homePage extends StatefulWidget {
 
 class _homePageState extends State<homePage> {
   int? metPpl = 123456; // TODO: use API to grab this
+  TextEditingController _tagPopUpController = TextEditingController();
+
   
   // this determines which page is loaded
   int pageIndex = 0;
@@ -175,6 +177,25 @@ class _homePageState extends State<homePage> {
       if (converted['err_msg'] != "ok") {
         throw Exception(converted['err_msg']);
       } else {
+        if (converted['body'][0].length < 6) {
+          ret.add(Center(
+            child: InkWell(
+              onTap: () {
+                _displayTextInputDialog(context);
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                elevation: 4,
+                color: Colors.amber,
+                child: const SizedBox(
+                  width: 60,
+                  child: Center(
+                    child: Text(
+                      "+",
+                    ),
+                  ))),
+            )));
+        }
         for (var element in converted['body'][0]) {
           ret.add(Center(
             child: Card(
@@ -197,6 +218,68 @@ class _homePageState extends State<homePage> {
       throw Exception('Failed to load');
     }
   } 
+
+Future<void> _displayTextInputDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add a new tag'),
+          content: TextField(
+            controller: _tagPopUpController,
+            decoration: InputDecoration(hintText: "fishing"),
+          ),
+          actions: <Widget>[
+            MaterialButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            MaterialButton(
+              child: Text('OK'),
+              onPressed: () {
+                addTag(_tagPopUpController.text);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> addTag(String tag) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final response = await http.put(Uri.parse('http://13.231.75.235:8080/tags',), body: jsonEncode(<String, String>{"id": prefs.getString("id")!, "tag": tag})).timeout(const Duration(seconds: 5),);
+
+    JsonDecoder decoder = const JsonDecoder();
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        showDialog(
+          context: context, 
+          builder: (context) {
+            return  AlertDialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(20)
+                )
+                ),
+                title: const Text("Unable to add tags!"),
+                content: Text(converted['err_msg']),
+            );
+          }
+        );
+      } else {
+        setState(() {
+        });
+      }
+    }
+  }
+
+
 
   // generate page for matched people
   Future<Widget> matchedPage() async {
