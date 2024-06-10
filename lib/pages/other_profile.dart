@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:orbital/Profile.dart';
-import 'package:orbital/pages/home.dart';
-import 'package:orbital/tag.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

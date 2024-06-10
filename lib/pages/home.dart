@@ -1,12 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:orbital/Profile.dart';
 import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:chat_bubbles/chat_bubbles.dart';
-import 'package:orbital/tag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Profile myProf = Profile('Zhang Haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
