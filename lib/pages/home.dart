@@ -28,6 +28,7 @@ class _homePageState extends State<homePage> {
     return SafeArea(
       child: Scaffold(
         bottomNavigationBar: NavigationBar(
+          elevation: 2,
           selectedIndex: pageIndex,
           height: 67,
           onDestinationSelected: (value) => setState(() {
@@ -95,9 +96,7 @@ class _homePageState extends State<homePage> {
             shape: const CircleBorder(),
             child: CircleAvatar(
               radius: 70,
-              child: Image(
-                image: NetworkImage(prefs.getString('pfp')!)
-              )
+              backgroundImage: NetworkImage(prefs.getString('pfp')!)
             )
           )
         ),
@@ -108,7 +107,7 @@ class _homePageState extends State<homePage> {
             elevation: 4,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             onPressed: () {
-              Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : prefs.getString('id')});
+              Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : prefs.getString('id'), "isFirstTime": false});
             },
             child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),)),
         ),
@@ -183,33 +182,43 @@ class _homePageState extends State<homePage> {
               onTap: () {
                 _displayTextInputDialog(context);
               },
-              child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-                elevation: 4,
-                color: Colors.amber,
-                child: const SizedBox(
-                  width: 60,
-                  child: Center(
-                    child: Text(
-                      "+",
-                    ),
-                  ))),
+              child: InkWell(
+                onTap: () {
+                  _displayTextInputDialog(context);
+                  },
+                child: Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                  elevation: 4,
+                  color: Colors.amber,
+                  child: const SizedBox(
+                    width: 60,
+                    child: Center(
+                      child: Text(
+                        "+",
+                      ),
+                    ))),
+              ),
             )));
         }
         for (var element in converted['body'][0]) {
           ret.add(Center(
-            child: Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-              elevation: 4,
-              color: Colors.amber,
-              child: SizedBox(
-                width: 60,
-                child: Center(
-                  child: Text(
-                    element['tag'],
-                  ),
-                )),
-              ),
+            child: InkWell(
+              onTap: () {
+                removeTagDialog(context, element['tag']);
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                elevation: 4,
+                color: Colors.amber,
+                child: SizedBox(
+                  width: 60,
+                  child: Center(
+                    child: Text(
+                      element['tag'],
+                    ),
+                  )),
+                ),
+            ),
           ));     
         }
         return ret;
@@ -227,7 +236,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
           title: Text('Add a new tag'),
           content: TextField(
             controller: _tagPopUpController,
-            decoration: InputDecoration(hintText: "fishing"),
+            decoration: InputDecoration(hintText: "e.g. fishing"),
           ),
           actions: <Widget>[
             MaterialButton(
@@ -248,6 +257,65 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
       },
     );
   }
+
+  Future<void> removeTagDialog(BuildContext context, String tag) {
+        return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Remove a new tag'),
+          content: Text('Are you sure you want to remove this tag?'),
+          actions: <Widget>[
+            MaterialButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            MaterialButton(
+              child: Text('OK'),
+              onPressed: () {
+                removeTag(tag);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> removeTag(String tag) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final response = await http.delete(Uri.parse('http://13.231.75.235:8080/tags',), body: jsonEncode(<String, String>{"id": prefs.getString("id")!, "tag": tag})).timeout(const Duration(seconds: 5),);
+    JsonDecoder decoder = const JsonDecoder();
+
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        showDialog(
+          context: context, 
+          builder: (context) {
+            return  AlertDialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(20)
+                )
+                ),
+                title: const Text("Unable to remove tags!"),
+                content: Text(converted['err_msg']),
+            );
+          }
+        );
+      } else {
+        setState(() {
+        });
+      }
+    }
+    
+  }
+
 
   Future<void> addTag(String tag) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -335,10 +403,14 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
           children: [
             Container(
               margin: const EdgeInsets.all(20),
-              child: Image(image: NetworkImage(profile.pfp), 
-                    width: 70,
-                    height: 70,
-                    ),
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(35),
+                child: CircleAvatar(
+                  radius: 35,
+                  backgroundImage: NetworkImage(profile.pfp), 
+                ),
+              ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

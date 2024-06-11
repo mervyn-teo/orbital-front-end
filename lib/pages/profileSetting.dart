@@ -24,6 +24,7 @@ class _profileSettingsState extends State<profileSettings> {
   Widget build(BuildContext context) {
     final arguments = (ModalRoute.of(context)?.settings.arguments ?? <String, dynamic>{}) as Map;
     profile.id = arguments['id'];
+    isFirstTime = arguments['isFirstTime'];
     return  FutureBuilder(
       future: getPreferences(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -62,10 +63,14 @@ class _profileSettingsState extends State<profileSettings> {
             children: [
               Container(
                 margin: const EdgeInsets.fromLTRB(0, 40, 0, 0),
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: NetworkImage(profile.pfp), // local filepath, default is a placeholder image
-                  foregroundImage: FileImage(File(imageFile!.path)),
+                child: Material(
+                  borderRadius: BorderRadius.circular(60),
+                  elevation: 4,
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundImage: NetworkImage(profile.pfp), // local filepath, default is a placeholder image
+                    foregroundImage: FileImage(File(imageFile!.path)),
+                  ),
                 ),
               ),
               Container(
@@ -147,7 +152,6 @@ class _profileSettingsState extends State<profileSettings> {
   // TODO: implement this
   Future<SharedPreferences> getPreferences() async {
     var pref = await SharedPreferences.getInstance();
-    isFirstTime = pref.getString('id') == null;
     return pref;
   }
 
@@ -241,7 +245,6 @@ class _profileSettingsState extends State<profileSettings> {
     Future<Map<String, dynamic>> editProfile() async {
  
     JsonDecoder decoder = const JsonDecoder();
-    String retStatus = "";
 
     try {
       if (isPfpChanged) {

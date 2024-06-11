@@ -134,7 +134,7 @@ String pwd = "";
         );
       } else {
           //success
-          Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : responses['body'][1].toString()});
+          Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : responses['body'][1].toString(), "isFirstTime": true});
         return true;
       }
     }
