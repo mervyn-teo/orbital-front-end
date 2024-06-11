@@ -6,7 +6,6 @@ import 'package:orbital/pages/register.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:auth_buttons/auth_buttons.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -25,7 +24,7 @@ class _loginState extends State<login> {
       child: Scaffold(
         backgroundColor: Colors.grey[300],
         body: Column(children: [
-          SizedBox(height: 150),
+          const SizedBox(height: 150),
           Container(
               padding: const EdgeInsets.fromLTRB(20, 50, 10, 0),
               alignment: Alignment.center,
@@ -64,7 +63,7 @@ class _loginState extends State<login> {
             child: RichText(
               text: TextSpan(
                 children: [
-                   TextSpan(
+                   const TextSpan(
                     text: "Don't have an account? ",
                     style: TextStyle(
                       color: Colors.grey,
@@ -80,7 +79,7 @@ class _loginState extends State<login> {
                       ..onTap = () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => register()),
+                          MaterialPageRoute(builder: (context) => const register()),
                         );
                       },
                   ),
@@ -102,7 +101,7 @@ class _loginState extends State<login> {
               )
           ),
           SizedBox(height: 20),
-          Row(
+          const Row(
             children: <Widget>[
               Expanded(
                 child: Divider()
@@ -113,15 +112,15 @@ class _loginState extends State<login> {
               ),
             ]
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           GoogleAuthButton(
             onPressed: () {
               // your implementation
               setState(() {
               });
             },
-            style: AuthButtonStyle(
-              margin: const EdgeInsets.only(bottom: 20),
+            style: const AuthButtonStyle(
+              margin: EdgeInsets.only(bottom: 20),
             ),
           ),
           FacebookAuthButton(
@@ -130,8 +129,8 @@ class _loginState extends State<login> {
               setState(() {
               });
             },
-            style: AuthButtonStyle(
-              margin: const EdgeInsets.only(bottom: 20),
+            style: const AuthButtonStyle(
+              margin: EdgeInsets.only(bottom: 20),
             ),
           ),
         ],
@@ -178,14 +177,13 @@ class _loginState extends State<login> {
             }
         );
       } else {
-        Navigator.popAndPushNamed(context, '/home');
+        Navigator.pushNamedAndRemoveUntil(context, '/home',(Route<dynamic> route) => false);
       }
     }
   }
 
   Future<String> loginResponse(String email, String pwd) async {
     JsonDecoder decoder = const JsonDecoder();
-    String retStatus = "";
 
     try {
       final response = await http.post(Uri.parse('http://13.231.75.235:8080/login'),

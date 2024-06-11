@@ -17,7 +17,7 @@ class homePage extends StatefulWidget {
 
 class _homePageState extends State<homePage> {
   int? metPpl = 123456; // TODO: use API to grab this
-  TextEditingController _tagPopUpController = TextEditingController();
+  final TextEditingController _tagPopUpController = TextEditingController();
 
   
   // this determines which page is loaded
@@ -233,10 +233,10 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add a new tag'),
+          title: const Text('Add a new tag'),
           content: TextField(
             controller: _tagPopUpController,
-            decoration: InputDecoration(hintText: "e.g. fishing"),
+            decoration: const InputDecoration(hintText: "e.g. fishing"),
           ),
           actions: <Widget>[
             MaterialButton(
@@ -246,7 +246,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
               },
             ),
             MaterialButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 addTag(_tagPopUpController.text);
                 Navigator.pop(context);
@@ -263,17 +263,17 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Remove a new tag'),
-          content: Text('Are you sure you want to remove this tag?'),
+          title: const Text('Remove a new tag'),
+          content: const Text('Are you sure you want to remove this tag?'),
           actions: <Widget>[
             MaterialButton(
-              child: Text('CANCEL'),
+              child: const Text('CANCEL'),
               onPressed: () {
                 Navigator.pop(context);
               },
             ),
             MaterialButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 removeTag(tag);
                 Navigator.pop(context);

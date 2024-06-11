@@ -276,7 +276,6 @@ class _profileSettingsState extends State<profileSettings> {
 
   Future<Map<String, dynamic>> addProfile() async {
     JsonDecoder decoder = const JsonDecoder();
-    String retStatus = "";
 
     try {
       await uploadPfp(profile.id);
