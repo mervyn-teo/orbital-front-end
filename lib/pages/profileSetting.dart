@@ -221,6 +221,7 @@ class _profileSettingsState extends State<profileSettings> {
         await prefs.setInt('age', profile.age);
         await prefs.setString('id', profile.id);
         await prefs.setString('pfp', profile.pfp);
+        await prefs.setBool('hasLoggedIn', true);
         Navigator.popAndPushNamed(context, '/home');
       }
     }

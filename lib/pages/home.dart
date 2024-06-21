@@ -16,7 +16,6 @@ class homePage extends StatefulWidget {
 }
 
 class _homePageState extends State<homePage> {
-  int? metPpl = 123456; // TODO: use API to grab this
   final TextEditingController _tagPopUpController = TextEditingController();
 
   
@@ -133,6 +132,16 @@ class _homePageState extends State<homePage> {
               children: tags,
             ),
           )
+        ),
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+          child: MaterialButton(
+            onPressed: () {
+              prefs.setBool('hasLoggedIn', false);
+              Navigator.popAndPushNamed(context, '/login');
+            },
+            child: const Text('log out'),
+          ),
         )
       ],
     );
@@ -316,7 +325,6 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
     
   }
 
-
   Future<void> addTag(String tag) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final response = await http.put(Uri.parse('http://13.231.75.235:8080/tags',), body: jsonEncode(<String, String>{"id": prefs.getString("id")!, "tag": tag})).timeout(const Duration(seconds: 5),);
@@ -347,17 +355,33 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
     }
   }
 
+  Future<int> getMetPpl() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/metNumber',), body: jsonEncode(<String, String>{"id": prefs.getString("id")!})).timeout(const Duration(seconds: 5),);
 
+    JsonDecoder decoder = const JsonDecoder();
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+      } else {
+        return converted['body'][0];
+      }
+    } 
+    print('how am i here');
+    return 0;
+  }
 
   // generate page for matched people
   Future<Widget> matchedPage() async {
+    int metPpl = await getMetPpl();
     List<Card> cards = await getCards();
     return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
             padding: const EdgeInsets.fromLTRB(0, 32, 0, 0),
-            child: Text('you have passed by $metPpl people',
+            child: Text('you have passed other users $metPpl times',
             style: const TextStyle(fontSize: 12))),
           Container(
             padding: const EdgeInsets.fromLTRB(0, 32, 0, 0),

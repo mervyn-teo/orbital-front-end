@@ -15,8 +15,8 @@ class login extends StatefulWidget {
 }
 
 class _loginState extends State<login> {
-  late String email;
-  late String password;
+  String? email;
+  String? password;
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +142,37 @@ class _loginState extends State<login> {
 
 
   void login() async {
-    if (!EmailValidator.validate(email)) {
+    if (email == null) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(20)
+                  )
+              ),
+              title: Text("e-mail cannot be empty!"),
+              content: Text("please make sure your email is correct!"),
+            );
+          }
+      );
+    } else if (password == null){
+            showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(20)
+                  )
+              ),
+              title: Text("password cannot be empty!"),
+              content: Text("please make sure your password is correct!"),
+            );
+          }
+      );
+    } else if (!EmailValidator.validate(email!)) {
       showDialog(
           context: context,
           builder: (context) {
@@ -158,7 +188,7 @@ class _loginState extends State<login> {
           }
       );
     } else {
-      String errMsg = await loginResponse(email, password).catchError((e) {
+      String errMsg = await loginResponse(email!, password!).catchError((e) {
         return e.toString();
       });
       if (errMsg != "ok") {
@@ -203,6 +233,7 @@ class _loginState extends State<login> {
         await prefs.setInt('age', converted['body'][0]['age']);
         await prefs.setString('id', converted['body'][0]['id']);
         await prefs.setString('pfp', converted['body'][0]['pfp']);
+        await prefs.setBool('hasLoggedIn', true);
       }
 
       return converted['err_msg'];

@@ -62,7 +62,7 @@ class otherProfile extends StatelessWidget {
                     ),
                   )
                 );
-              })
+              }), 
             ],
           ),
       ) 
