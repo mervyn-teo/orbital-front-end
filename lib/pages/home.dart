@@ -148,11 +148,12 @@ class _homePageState extends State<homePage> {
   }
 
   // requests and sanitise data through API
-  Future<List<Profile>> requestProfiles() async{
+  Future<List<Profile>?> requestProfiles() async{
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     JsonDecoder decoder = const JsonDecoder();
     List<Profile> ret = List.empty(growable: true);
 
-    final response = await http.get(Uri.parse('http://13.231.75.235:8080/profiles')).timeout(const Duration(seconds: 5));
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/matches'), body: jsonEncode(<String, String>{"id": prefs.getString("id")!})).timeout(const Duration(seconds: 5));
     
     // OK status
     if (response.statusCode == 200) {
@@ -161,9 +162,14 @@ class _homePageState extends State<homePage> {
       if (converted['err_msg'] != "ok") {
         throw Exception(converted['err_msg']);
       } else {
+      if (converted['body'][0] != null) {
         for (var element in converted['body'][0]) {
-          ret.add(Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']));     
-        }
+          
+
+            ret.add(Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']));     
+          }
+        }                  
+        
         return ret;
       }
     } else {
@@ -405,7 +411,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
 
   // generate cards from list of profiles
   Future<List<Card>> getCards() async{
-    List<Profile>? matchedProfiles = await requestProfiles(); 
+    List<Profile>? matchedProfiles = await requestProfiles() ?? [myProf]; 
     List<Card> ret = List.empty(growable: true);
     for (var profile in matchedProfiles) {
       ret.add(makeProfileCards(profile));
