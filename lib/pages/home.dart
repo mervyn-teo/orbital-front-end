@@ -425,35 +425,92 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
       elevation: 4,
       margin: const EdgeInsets.fromLTRB(15, 16, 15, 0), 
       color: Colors.amber,
-      child: InkWell(
-        onTap: ()=> {
-          Navigator.push(context, 
-            MaterialPageRoute(builder: (context) => otherProfile(profile: profile, )))}, // goes to the profile page
-               child: Row(
-          children: [
-            Container(
-              margin: const EdgeInsets.all(20),
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(35),
-                child: CircleAvatar(
-                  radius: 35,
-                  backgroundImage: NetworkImage(profile.pfp), 
-                ),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(profile.name,),
-                Text(profile.age.toString(),),
-                Text(profile.bio.length > 30 ? '${profile.bio.substring(0, 30)}...' : profile.bio),
-              ],
-            )
-          ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+        child: InkWell(
+          onTap: ()=> {
+            Navigator.push(context, 
+              MaterialPageRoute(builder: (context) => otherProfile(profile: profile, )))}, // goes to the profile page
+                 child: Row(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.all(20),
+                      child: Material(
+                        elevation: 4,
+                        borderRadius: BorderRadius.circular(35),
+                        child: CircleAvatar(
+                          radius: 35,
+                          backgroundImage: NetworkImage(profile.pfp), 
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(profile.name,),
+                          Text(profile.age.toString(),),
+                          Text(profile.bio.length > 30 ? '${profile.bio.substring(0, 30)}...' : profile.bio),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 60, 0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                IconButton(
+                                  onPressed: () async {
+                                    if (await addInterest(profile.id)){
+                                      setState(() {
+                                    });
+                                    }
+                                  }, 
+                                  icon: const Icon(Icons.check)
+                                  ),
+                                IconButton(
+                                  onPressed: () async {
+                                    if (await addNotInterest(profile.id)){
+                                      setState(() {
+                                    });
+                                    }
+                                  }, 
+                                  icon: const Icon(Icons.close),
+                                  )
+                                ],
+                            ),
+                          ),                       
+                        ],
+                      ),
+                    ),
+                  ],
+          ),
         ),
       ),
       );
+  }
+
+  Future<bool> addInterest(String idTo) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/addInterest',), body: jsonEncode(<String, String>{"id_from": prefs.getString("id")!, "id_to": idTo})).timeout(const Duration(seconds: 5),);
+
+    JsonDecoder decoder = const JsonDecoder();
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+    return converted['err_msg'] == "ok";
+    }
+    return false;
+  }
+
+    Future<bool> addNotInterest(String idTo) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/addNotInterest',), body: jsonEncode(<String, String>{"id_from": prefs.getString("id")!, "id_to": idTo})).timeout(const Duration(seconds: 5),);
+
+    JsonDecoder decoder = const JsonDecoder();
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+    return converted['err_msg'] == "ok";
+    }
+    return false;
   }
 
   Future<Widget> chatList() async {
