@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:orbital/pages/chat.dart';
 import 'package:orbital/pages/loading.dart';
 import 'package:orbital/pages/home.dart';
 import 'package:orbital/pages/login.dart';
@@ -11,6 +12,12 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// testaccount
+// u: testtest123@abc.com
+// p: asdfghj
+// id: 98
+
+
 void main() {
   runApp(MaterialApp(
   initialRoute: '/', // TODO: make home() run first for testing, remove for actual product
@@ -20,6 +27,7 @@ void main() {
     '/login': (context) => const login(),
     '/register': (context) => const register(),
     '/profilesetting': (context) => const profileSettings(),
+    '/chat': (context) => const myChat(),
   },
   )); 
   

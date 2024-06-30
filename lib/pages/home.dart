@@ -164,8 +164,6 @@ class _homePageState extends State<homePage> {
       } else {
       if (converted['body'][0] != null) {
         for (var element in converted['body'][0]) {
-          
-
             ret.add(Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']));     
           }
         }                  
@@ -513,8 +511,62 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
     return false;
   }
 
+  Future<Card> makeChatCard(Profile msgObj) async {
+    return Card(
+      margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+      color: Colors.blueAccent,
+      elevation: 4,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(context, '/chat', arguments: {'oppProfile' : msgObj});
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Row(
+            children: [
+              Container(
+                margin: EdgeInsets.all(10),
+                child: Image.network(
+                  msgObj.pfp,
+                  height: 80,
+                  width: 80,
+                  )),
+              Container(
+                margin: EdgeInsets.all(10),
+                child: Text(msgObj.name))
+            ],
+          ),
+        )
+      ),
+    );
+  }
+
+  Future<List<Card>?> getChatable() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString("id"));
+
+
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/getChat',), body: jsonEncode(<String, String>{"id": prefs.getString("id")!})).timeout(const Duration(seconds: 5),);
+    JsonDecoder decoder = const JsonDecoder();
+    List<Card> cards = List.empty(growable: true);
+
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+
+      if (converted['body'][0] != null) {
+          for (var element in converted['body'][0]) {
+            var temp = Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']);
+            cards.add(await makeChatCard(temp));     
+          }
+        return cards;
+      }
+    }
+    return null;
+  }
+
   Future<Widget> chatList() async {
-    List<Card> cards = await getCards(); // TODO: make cards specific for chattable, now using profile directly
+    List<Card>? cards = await getChatable(); // TODO: make cards specific for chattable, now using profile directly
+
     return Column(
       children: [
         Container(
@@ -531,7 +583,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
               });
             },
             child: ListView(
-              children: cards,
+              children: cards ?? List.of([Container()]),
               ),
             ),
       ),
@@ -585,7 +637,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('description 1'),
+              const Text('placeholder 1'),
               Switch(
                 value: settingsBoolean1, 
                 onChanged: (bool val){
@@ -602,7 +654,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('description 2'),
+              const Text('placeholder 2'),
               Switch(
                 value: settingsBoolean2, 
                 onChanged: (bool val){
