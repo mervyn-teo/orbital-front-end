@@ -13,22 +13,22 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // testaccount
-// u: testtest123@abc.com
+// u: testtes123@abc.com
 // p: asdfghj
 // id: 98
-
-
-void main() {
-  runApp(MaterialApp(
-  initialRoute: '/', // TODO: make home() run first for testing, remove for actual product
-  routes: {
+var routes = {
     '/': (context) => const loading(),
     '/home': (context) => const homePage(),
     '/login': (context) => const login(),
     '/register': (context) => const register(),
     '/profilesetting': (context) => const profileSettings(),
     '/chat': (context) => const myChat(),
-  },
+  };
+  
+void main() {
+  runApp(MaterialApp(
+  initialRoute: '/', 
+  routes: routes,
   )); 
   
   // upload location

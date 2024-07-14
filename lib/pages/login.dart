@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:orbital/pages/register.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:auth_buttons/auth_buttons.dart';
+// import 'package:auth_buttons/auth_buttons.dart';
+
+var loginEmailKey = const Key('login_email');
+var loginPwdKey = const Key('login_password');
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -18,128 +21,132 @@ class _loginState extends State<login> {
   String? email;
   String? password;
 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.grey[300],
-        body: Column(children: [
-          const SizedBox(height: 150),
-          Container(
-              padding: const EdgeInsets.fromLTRB(20, 50, 10, 0),
-              alignment: Alignment.center,
-              child: const Text(
-                "Account Login",
-                style: TextStyle(
-                    fontSize: 40),)
-          ),
-          Container(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-              margin: const EdgeInsets.fromLTRB(20, 10, 20, 0) ,
-              child: TextField(
-                style: const TextStyle(fontSize: 20),
-                enableSuggestions: true,
-                maxLines: 1,
-                onChanged: (value) {email = value;},
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "E-mail", ),
-                keyboardType: TextInputType.emailAddress,)),
-          Container(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-              margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: TextField(
+      child: MaterialApp(
+        home: Scaffold(
+          backgroundColor: Colors.grey[300],
+          body: Column(children: [
+            const SizedBox(height: 150),
+            Container(
+                padding: const EdgeInsets.fromLTRB(20, 50, 10, 0),
+                alignment: Alignment.center,
+                child: const Text(
+                  "Account Login",
+                  style: TextStyle(
+                      fontSize: 40),)
+            ),
+            Container(
+                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                margin: const EdgeInsets.fromLTRB(20, 10, 20, 0) ,
+                child: TextField(
+                  key: loginEmailKey,
                   style: const TextStyle(fontSize: 20),
+                  enableSuggestions: true,
                   maxLines: 1,
-                  onChanged: (value) {password = value;},
+                  onChanged: (value) {email = value;},
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: "Password", ),
-                  obscureText: true,
-                  obscuringCharacter: "*")
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(25, 0, 30, 10),
-            child: RichText(
-              text: TextSpan(
-                children: [
-                   const TextSpan(
-                    text: "Don't have an account? ",
-                    style: TextStyle(
-                      color: Colors.grey,
+                    labelText: "E-mail", ),
+                  keyboardType: TextInputType.emailAddress,)),
+            Container(
+                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: TextField(
+                  key: loginPwdKey,
+                    style: const TextStyle(fontSize: 20),
+                    maxLines: 1,
+                    onChanged: (value) {password = value;},
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Password", ),
+                    obscureText: true,
+                    obscuringCharacter: "*")
+            ),
+            Container(
+              margin: const EdgeInsets.fromLTRB(25, 0, 30, 10),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                     const TextSpan(
+                      text: "Don't have an account? ",
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                  TextSpan(
-                    text: "Sign up here",
-                    style: const TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
+                    TextSpan(
+                      text: "Sign up here",
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const register()),
+                          );
+                        },
                     ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const register()),
-                        );
-                      },
-                  ),
-                ],
+                  ],
+                ),
+                textAlign: TextAlign.left,
               ),
-              textAlign: TextAlign.left,
             ),
-          ),
-          MaterialButton(
-              onPressed: () {
-                login();
-              },    // TODO: implement info handling after API response
-              color: Colors.amber,
-              child: const Text(
-                "Login",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Colors.black),
-              )
-          ),
-          SizedBox(height: 20),
-          const Row(
-            children: <Widget>[
-              Expanded(
-                child: Divider()
-              ),
-              Text("   OR continue with  "),
-              Expanded(
-                child: Divider()
-              ),
-            ]
-          ),
-          const SizedBox(height: 20),
-          GoogleAuthButton(
-            onPressed: () {
-              // your implementation
-              setState(() {
-              });
-            },
-            style: const AuthButtonStyle(
-              margin: EdgeInsets.only(bottom: 20),
+            MaterialButton(
+                key: const Key('login_button'),
+                onPressed: () {
+                  login();
+                },    // TODO: implement info handling after API response
+                color: Colors.amber,
+                child: const Text(
+                  "Login",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.black),
+                )
             ),
+            // SizedBox(height: 20),
+            // const Row(
+            //   children: <Widget>[
+            //     Expanded(
+            //       child: Divider()
+            //     ),
+            //     Text("   OR continue with  "),
+            //     Expanded(
+            //       child: Divider()
+            //     ),
+            //   ]
+            // ),
+            // const SizedBox(height: 20),
+            // GoogleAuthButton(
+            //   onPressed: () {
+            //     // your implementation
+            //     setState(() {
+            //     });
+            //   },
+            //   style: const AuthButtonStyle(
+            //     margin: EdgeInsets.only(bottom: 20),
+            //   ),
+            // ),
+            // FacebookAuthButton(
+            //   onPressed: () {
+            //     // your implementation
+            //     setState(() {
+            //     });
+            //   },
+            //   style: const AuthButtonStyle(
+            //     margin: EdgeInsets.only(bottom: 20),
+            //   ),
+            // ),
+          ],
           ),
-          FacebookAuthButton(
-            onPressed: () {
-              // your implementation
-              setState(() {
-              });
-            },
-            style: const AuthButtonStyle(
-              margin: EdgeInsets.only(bottom: 20),
-            ),
-          ),
-        ],
         ),
       ),
     );
   }
-
-
 
   void login() async {
     if (email == null) {
@@ -147,6 +154,7 @@ class _loginState extends State<login> {
           context: context,
           builder: (context) {
             return const AlertDialog(
+              key: Key("empty_email_popup"),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                       Radius.circular(20)
@@ -158,10 +166,11 @@ class _loginState extends State<login> {
           }
       );
     } else if (password == null){
-            showDialog(
+        showDialog(
           context: context,
           builder: (context) {
             return const AlertDialog(
+              key: Key("empty_password_popup"),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                       Radius.circular(20)
@@ -177,6 +186,7 @@ class _loginState extends State<login> {
           context: context,
           builder: (context) {
             return const AlertDialog(
+              key: const Key("error_email_popup"),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                       Radius.circular(20)
@@ -196,6 +206,7 @@ class _loginState extends State<login> {
             context: context,
             builder: (context) {
               return  AlertDialog(
+                key: const Key('error_login_failed'),
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
                         Radius.circular(20)
@@ -212,11 +223,13 @@ class _loginState extends State<login> {
     }
   }
 
-  Future<String> loginResponse(String email, String pwd) async {
+}
+  Future<String> loginResponse(String email, String pwd, {http.Client? client}) async {
     JsonDecoder decoder = const JsonDecoder();
+    client ??= http.Client();
 
     try {
-      final response = await http.post(Uri.parse('http://13.231.75.235:8080/login'),
+      final response = await client.post(Uri.parse('http://13.231.75.235:8080/login'),
           body: jsonEncode(<String, String>{
             "email": email,
             "pwd": pwd
@@ -241,4 +254,3 @@ class _loginState extends State<login> {
       return e.toString();
     }
   }
-}

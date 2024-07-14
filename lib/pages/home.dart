@@ -25,6 +25,7 @@ class _homePageState extends State<homePage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      key: const Key("home_page"),
       child: Scaffold(
         bottomNavigationBar: NavigationBar(
           elevation: 2,
@@ -38,14 +39,14 @@ class _homePageState extends State<homePage> {
               icon: Icon(Icons.check_circle_outline_outlined), 
               label: 'Matched'),
             NavigationDestination(
-              icon: Icon(Icons.settings), 
-              label: 'Settings'),
+              icon: Icon(Icons.account_circle_outlined), 
+              label: 'Profile'),
             NavigationDestination(
               icon: Icon(Icons.chat), 
               label: 'Chats'),
             NavigationDestination(
-              icon: Icon(Icons.account_circle_outlined), 
-              label: 'Profile')
+              icon: Icon(Icons.settings), 
+              label: 'Settings'),
         ]),
         body: FutureBuilder<Widget>(
           future: choosePage(pageIndex),
@@ -70,11 +71,11 @@ class _homePageState extends State<homePage> {
           case 0:
             return await matchedPage();
           case 1:
-            return settingPage();
+            return await myProfile();
           case 2:
             return chatList();
           case 3:
-            return await myProfile();
+            return settingPage();
           default:
             return await matchedPage();
         }
