@@ -142,78 +142,193 @@ class _homePageState extends State<homePage> {
     List<Card> cards = List.empty(growable: true);
 
     for (var element in events) {
-      if (element.userId.contains(int.parse(prefs.getString('id')!))) {
-        cards.add(Card(
-          margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-          color: Colors.amberAccent,
-          elevation: 4,
-          child: Padding(
+      if (element.userId.length > 0) {
+        if (element.userId.contains(int.parse(prefs.getString('id')!))) {
+          cards.add(Card(
+            margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+            color: Colors.amberAccent,
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
+                    child:  const Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Participated',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: Colors.black54,
+                        ),),
+                    ),
+                  ), //TODO: make different indicater
+                  Container(
+                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Event Name: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "\n${element.name}",
+                          style: const TextStyle(
+                            fontSize: 17,
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
+                        )
+                      ])),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Event Description: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "\n${element.description}",
+                          style: const TextStyle(
+                            fontSize: 17,
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
+                        )
+                      ])),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Date and time: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "\n${element.dateTime}",
+                          style: const TextStyle(
+                            fontSize: 17,
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
+                        )
+                      ])),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Numbers of participents: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "${element.userId.length}/${element.size}",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
+                        )
+                      ])),
+                ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: MaterialButton(
+                        elevation: 2,
+                        color: Colors.greenAccent,
+                        child: Text("Withdraw"),
+                        onPressed: () {
+                          quitEvent(element.eventId);
+                          setState(() {
+                          });
+                        }
+                        ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ));
+        } else {
+          cards.add(Card(
+        margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+        color: Colors.amberAccent,
+        elevation: 4,
+        child: Padding(
             padding: const EdgeInsets.all(5.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                  Container(
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Event Name: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "\n${element.name}",
+                          style: const TextStyle(
+                            fontSize: 17,
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
+                        )
+                      ])),
+                ),
                 Container(
-                  margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
-                  child:  const Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'Participated',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        color: Colors.black54,
-                      ),),
-                  ),
-                ), //TODO: make different indicater
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Event Description: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "\n${element.description}",
+                          style: const TextStyle(
+                            fontSize: 17,
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
+                        )
+                      ])),
+                ),
                 Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: Text.rich(
-                  TextSpan(
-                    text: "Event Name: ",
-                    style: TextStyle(
-                      fontSize: 20
-                    ), children: <InlineSpan>[
-                      TextSpan(
-                        text: "\n${element.name}",
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: Color.fromARGB(255, 0, 114, 172)
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Date and time: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "\n${element.dateTime}",
+                          style: const TextStyle(
+                            fontSize: 17,
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
                         )
-                      )
-                    ])),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: Text.rich(
-                  TextSpan(
-                    text: "Event Description: ",
-                    style: TextStyle(
-                      fontSize: 20
-                    ), children: <InlineSpan>[
-                      TextSpan(
-                        text: "\n${element.description}",
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: Color.fromARGB(255, 0, 114, 172)
+                      ])),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Numbers of participents: ",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ), children: <InlineSpan>[
+                        TextSpan(
+                          text: "${element.userId.length}/${element.size}",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 114, 172)
+                          )
                         )
-                      )
-                    ])),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: Text.rich(
-                  TextSpan(
-                    text: "Numbers of participents: ",
-                    style: TextStyle(
-                      fontSize: 20
-                    ), children: <InlineSpan>[
-                      TextSpan(
-                        text: "${events.length}/${element.size}",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 0, 114, 172)
-                        )
-                      )
-                    ])),
-              ),
+                      ])),
+                ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                   child: Align(
@@ -221,103 +336,50 @@ class _homePageState extends State<homePage> {
                     child: MaterialButton(
                       elevation: 2,
                       color: Colors.greenAccent,
-                      child: Text("Withdraw"),
+                      child: Text("join"),
                       onPressed: () {
-                        quitEvent(element.eventId);
+                        joinEvent(element.eventId);
                         setState(() {
                         });
                       }
                       ),
                   ),
-                ),
+                )
               ],
             ),
           )
         ));
-      } else {
-        cards.add(Card(
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-      color: Colors.amberAccent,
-      elevation: 4,
-      child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-                Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: Text.rich(
-                  TextSpan(
-                    text: "Event Name: ",
-                    style: TextStyle(
-                      fontSize: 20
-                    ), children: <InlineSpan>[
-                      TextSpan(
-                        text: "\n${element.name}",
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: Color.fromARGB(255, 0, 114, 172)
-                        )
-                      )
-                    ])),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: Text.rich(
-                  TextSpan(
-                    text: "Event Description: ",
-                    style: TextStyle(
-                      fontSize: 20
-                    ), children: <InlineSpan>[
-                      TextSpan(
-                        text: "\n${element.description}",
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: Color.fromARGB(255, 0, 114, 172)
-                        )
-                      )
-                    ])),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: Text.rich(
-                  TextSpan(
-                    text: "Numbers of participents: ",
-                    style: TextStyle(
-                      fontSize: 20
-                    ), children: <InlineSpan>[
-                      TextSpan(
-                        text: "${events.length}/${element.size}",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 0, 114, 172)
-                        )
-                      )
-                    ])),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: MaterialButton(
-                    elevation: 2,
-                    color: Colors.greenAccent,
-                    child: Text("join"),
-                    onPressed: () {
-                      joinEvent(element.eventId);
-                      setState(() {
-                      });
-                    }
-                    ),
-                ),
-              )
-            ],
-          ),
-        )
-      ));
+        }
       }
     }
 
     return cards;
+  }
+ 
+  Future<bool> isReported(id) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    JsonDecoder decoder = const JsonDecoder();
+
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/checkReported'), 
+    body: jsonEncode(
+      {
+        "id_from" : prefs.getString('id')!,
+        "id_to" : id
+      }
+    )).timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        throw Exception(converted['err_msg']);
+      } else {
+        return converted['body'][0];
+      }
+    } else {
+      throw Exception('Failed to load');
+    }
   }
 
   Future<List<Event>> getEvents() async {
@@ -349,8 +411,7 @@ class _homePageState extends State<homePage> {
     }
   }
 
-  Future<void> _displayEventInputDialog(BuildContext context) async {
-
+  Future<void> _displayEventInputDialog(BuildContext context) async {{}
     return showDialog(
       context: context,
       builder: (context) {
@@ -992,7 +1053,9 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
       if (converted['body'][0] != null) {
           for (var element in converted['body'][0]) {
             var temp = Profile(element['name'], element['id'], element['age'], element['bio'], element['pfp']);
-            cards.add(await makeChatCard(temp));     
+            if (!await isReported(temp.id)) {
+              cards.add(await makeChatCard(temp));     
+            }
           }
         return cards;
       }

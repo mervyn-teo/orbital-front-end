@@ -71,6 +71,7 @@ class _ChatState extends State<myChat> {
           child: Container(
             padding: EdgeInsets.only(right: 16),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
                   onPressed: (){
@@ -86,7 +87,23 @@ class _ChatState extends State<myChat> {
                     width: 50,
                     ),
                 ),
-                Text(oppProfile.name)
+                Text(oppProfile.name),
+                const Spacer(),
+                MaterialButton(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                  ),
+                  color: Colors.red,
+                  onPressed: () async {
+                    report(oppProfile.id);
+                  },
+                  child: const Text(
+                    "report",
+                    style: TextStyle(
+                      color: Colors.white
+                      ),
+                      ),
+                      )
               ]
               )
             )
@@ -185,6 +202,50 @@ class _ChatState extends State<myChat> {
       ),
     );
   }
+}
+
+    Future<void> report(id) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    JsonDecoder decoder = const JsonDecoder();
+
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/reported'), 
+    body: jsonEncode(
+      {
+        "id_from" : prefs.getString('id')!,
+        "id_to" : id 
+      }
+    )).timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        throw Exception(converted['err_msg']);
+      }
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
+
+Future<void> reportChat(id) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+    JsonDecoder decoder = const JsonDecoder();
+
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/reported'), 
+      body: jsonEncode({
+        "id_from" : prefs.getString("id")!,
+        "id_to" : id}))
+      .timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+       throw Exception('Failed to load');
+      }
+    }
 }
 
 Future<List<Message>?> getMessages(Profile oppProfile) async {
