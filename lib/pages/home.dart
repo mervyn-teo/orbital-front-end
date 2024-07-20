@@ -1,22 +1,30 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:orbital/Profile.dart';
+import 'package:orbital/event.dart';
 import 'package:orbital/pages/other_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:intl/intl.dart';
 
 Profile myProf = Profile('Zhang Haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
 
 class homePage extends StatefulWidget {
   const homePage({super.key});
-
   @override
   State<homePage> createState() => _homePageState();
 }
 
 class _homePageState extends State<homePage> {
   final TextEditingController _tagPopUpController = TextEditingController();
+  final TextEditingController _eventNamePopUpController = TextEditingController();
+  final TextEditingController _eventDesPopUpController = TextEditingController();
+  final TextEditingController _eventSizePopUpController = TextEditingController();
+  DateTime dateTime = DateTime.now();
 
   
   // this determines which page is loaded
@@ -39,14 +47,17 @@ class _homePageState extends State<homePage> {
               icon: Icon(Icons.check_circle_outline_outlined), 
               label: 'Matched'),
             NavigationDestination(
-              icon: Icon(Icons.account_circle_outlined), 
-              label: 'Profile'),
+              icon: Icon(Icons.calendar_month_outlined), 
+              label: 'Events'),
             NavigationDestination(
               icon: Icon(Icons.chat), 
               label: 'Chats'),
             NavigationDestination(
+              icon: Icon(Icons.account_circle_outlined), 
+              label: 'Profile'),
+            NavigationDestination(
               icon: Icon(Icons.settings), 
-              label: 'Settings'),
+              label: 'Settings')
         ]),
         body: FutureBuilder<Widget>(
           future: choosePage(pageIndex),
@@ -71,14 +82,436 @@ class _homePageState extends State<homePage> {
           case 0:
             return await matchedPage();
           case 1:
-            return await myProfile();
+            return await eventList();
           case 2:
-            return chatList();
+            return await chatList();
           case 3:
+            return await myProfile();
+          case 4:
             return settingPage();
           default:
             return await matchedPage();
         }
+  }
+
+  Future<Widget> eventList() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+ 
+    return SafeArea(  
+      child: Scaffold(
+        body: await events(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {_displayEventInputDialog(context);},
+          shape: CircleBorder(),
+          child: Icon(Icons.add),),
+        )
+        );
+  }
+
+  // generate page for events
+  Future<Widget> events() async {
+    List<Card>? cards = await getEventCards(); 
+
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: const Text('Events',
+            style: TextStyle(fontSize: 45),
+            ),
+        ),
+        SizedBox(
+          height: 618,
+          child: RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+              });
+            },
+            child: ListView(
+              children: cards ?? List.of([Container()]),
+              ),
+            ),
+      ),
+      ]
+    );
+  }
+
+  Future<List<Card>> getEventCards() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<Event> events = await getEvents();
+    List<Card> cards = List.empty(growable: true);
+
+    for (var element in events) {
+      if (element.userId.contains(int.parse(prefs.getString('id')!))) {
+        cards.add(Card(
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+          color: Colors.amberAccent,
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
+                  child:  const Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'Participated',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: Colors.black54,
+                      ),),
+                  ),
+                ), //TODO: make different indicater
+                Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Text.rich(
+                  TextSpan(
+                    text: "Event Name: ",
+                    style: TextStyle(
+                      fontSize: 20
+                    ), children: <InlineSpan>[
+                      TextSpan(
+                        text: "\n${element.name}",
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: Color.fromARGB(255, 0, 114, 172)
+                        )
+                      )
+                    ])),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Text.rich(
+                  TextSpan(
+                    text: "Event Description: ",
+                    style: TextStyle(
+                      fontSize: 20
+                    ), children: <InlineSpan>[
+                      TextSpan(
+                        text: "\n${element.description}",
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: Color.fromARGB(255, 0, 114, 172)
+                        )
+                      )
+                    ])),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Text.rich(
+                  TextSpan(
+                    text: "Numbers of participents: ",
+                    style: TextStyle(
+                      fontSize: 20
+                    ), children: <InlineSpan>[
+                      TextSpan(
+                        text: "${events.length}/${element.size}",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 0, 114, 172)
+                        )
+                      )
+                    ])),
+              ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: MaterialButton(
+                      elevation: 2,
+                      color: Colors.greenAccent,
+                      child: Text("Withdraw"),
+                      onPressed: () {
+                        quitEvent(element.eventId);
+                        setState(() {
+                        });
+                      }
+                      ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ));
+      } else {
+        cards.add(Card(
+      margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+      color: Colors.amberAccent,
+      elevation: 4,
+      child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+                Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Text.rich(
+                  TextSpan(
+                    text: "Event Name: ",
+                    style: TextStyle(
+                      fontSize: 20
+                    ), children: <InlineSpan>[
+                      TextSpan(
+                        text: "\n${element.name}",
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: Color.fromARGB(255, 0, 114, 172)
+                        )
+                      )
+                    ])),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Text.rich(
+                  TextSpan(
+                    text: "Event Description: ",
+                    style: TextStyle(
+                      fontSize: 20
+                    ), children: <InlineSpan>[
+                      TextSpan(
+                        text: "\n${element.description}",
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: Color.fromARGB(255, 0, 114, 172)
+                        )
+                      )
+                    ])),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Text.rich(
+                  TextSpan(
+                    text: "Numbers of participents: ",
+                    style: TextStyle(
+                      fontSize: 20
+                    ), children: <InlineSpan>[
+                      TextSpan(
+                        text: "${events.length}/${element.size}",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 0, 114, 172)
+                        )
+                      )
+                    ])),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: MaterialButton(
+                    elevation: 2,
+                    color: Colors.greenAccent,
+                    child: Text("join"),
+                    onPressed: () {
+                      joinEvent(element.eventId);
+                      setState(() {
+                      });
+                    }
+                    ),
+                ),
+              )
+            ],
+          ),
+        )
+      ));
+      }
+    }
+
+    return cards;
+  }
+
+  Future<List<Event>> getEvents() async {
+    JsonDecoder decoder = const JsonDecoder();
+    List<Event> ret = List.empty(growable: true);
+
+    final response = await http.get(Uri.parse('http://13.231.75.235:8080/getEvent'))
+      .timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        throw Exception(converted['err_msg']);
+      } else {
+      if (converted['body'][0] != null) {
+        for (var element in converted['body'][0]) {
+            List<int> userIdList = List<int>.from(element['user_id']);
+            var temp = Event(userIdList, element['event_id'], element['name'], element['description'], DateTime.parse(element['date_time']), element['size']);
+            ret.add(temp);
+          }
+        }                  
+        
+        return ret;
+      }
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
+
+  Future<void> _displayEventInputDialog(BuildContext context) async {
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add a new Event'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) { 
+              return Column(
+              children: [
+                TextField(
+                  controller: _eventNamePopUpController,
+                  decoration: const InputDecoration(
+                    hintText: "e.g. fishing", 
+                    labelText: "Event Name"),
+                ),
+                TextField(
+                  controller: _eventDesPopUpController,
+                  decoration: const InputDecoration(
+                    hintText: "e.g. the quick brown fox jumps over the lazy dog",
+                    labelText: "Event description"),
+                ),
+                TextField(
+                  controller: _eventSizePopUpController,
+                  decoration: const InputDecoration(
+                    hintText: "e.g. 15",
+                    labelText: "Size"),
+                  keyboardType: TextInputType.number,
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      textAlign: TextAlign.left,
+                      "Date & time selected: \n${DateFormat('yyyy-MM-dd   kk:mm').format(dateTime)}",
+                      style: const TextStyle(
+                        fontSize: 20),),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: MaterialButton(
+                    color: Colors.amberAccent,
+                    elevation: 2,
+                    child: const Text("choose a date"),
+                    onPressed: () {
+                      DatePicker.showDateTimePicker(context,
+                        showTitleActions: true,
+                        minTime: DateTime.now().add(const Duration(days: 1)),
+                        maxTime: DateTime.now().add(const Duration(days: 3650)), 
+                        onConfirm: (date) {
+                          setState(() {
+                            dateTime = date;
+                          });
+                        }, currentTime: DateTime.now(), locale: LocaleType.en);
+                    },
+                  ),
+                )
+              ],
+            );
+            },
+          ),
+          actions: <Widget>[
+            MaterialButton(
+              child: const Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            MaterialButton(
+              child: const Text('OK'),
+              onPressed: () async {
+                // check if empty
+                if (_eventSizePopUpController.text == "" || _eventNamePopUpController.text == "" || _eventDesPopUpController.text == "") {
+                  showDialog(
+                    context: context, 
+                    builder: (context) {
+                      return const AlertDialog(
+                        title: Text(
+                          "Fill in all the blanks!",
+                          style: TextStyle(
+                            fontSize: 15,
+                          ),),
+                      );
+                    });
+                } else {
+                  await createEvent(_eventNamePopUpController.text, _eventDesPopUpController.text, dateTime, int.parse(_eventSizePopUpController.text));
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> createEvent(String name, String description, DateTime datetime, int size) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    JsonDecoder decoder = const JsonDecoder();
+
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/setEvent'), 
+      body: jsonEncode({
+        "user_id": [int.parse(prefs.getString("id")!)],
+        "size" : size,
+        "name" : name,
+        "description" : description,
+        "date_time" : "${datetime.toIso8601String()}Z"}))
+      .timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+       throw Exception('Failed to load');
+      }
+    }
+  }
+
+  Future<void> joinEvent(String eventId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    JsonDecoder decoder = const JsonDecoder();
+
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/addIdToEvent'), 
+      body: jsonEncode({
+        "id" : int.parse(prefs.getString("id")!),
+        "event_id" : eventId
+      }))
+      .timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+       throw Exception('Failed to load');
+      }
+    }
+  }
+
+    Future<void> quitEvent(String eventId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    JsonDecoder decoder = const JsonDecoder();
+
+    print("${eventId.runtimeType}, ${prefs.getString("id")!.runtimeType}");
+    final response = await http.post(Uri.parse('http://13.231.75.235:8080/removeIdFromEvent'), 
+      body: jsonEncode({
+        "user_id" : prefs.getString("id")!,
+        "event_id" : eventId
+      }))
+      .timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+       throw Exception('Failed to load');
+      }
+    }
   }
 
   //generate page for my profile
@@ -271,6 +704,8 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
       },
     );
   }
+
+  
 
   Future<void> removeTagDialog(BuildContext context, String tag) {
         return showDialog(
