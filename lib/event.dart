@@ -5,6 +5,7 @@ class Event {
   String description;
   DateTime dateTime;
   int size;
+  String owner;
 
-  Event(this.userId, this.eventId, this.name, this.description, this.dateTime, this.size);
+  Event(this.userId, this.eventId, this.name, this.description, this.dateTime, this.size, this.owner);
 }

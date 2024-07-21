@@ -152,19 +152,34 @@ class _homePageState extends State<homePage> {
               padding: const EdgeInsets.all(5.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
-                    child:  const Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Participated',
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          color: Colors.black54,
-                        ),),
+                children: [ 
+                  if (element.owner != prefs.getString("id")) ...[
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
+                      child:  const Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'Participated',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            color: Colors.black54,
+                          ),),
+                      ),
                     ),
-                  ), //TODO: make different indicater
+                  ] else ...[
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
+                      child:  const Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'Owner',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            color: Colors.black54,
+                          ),),
+                      ),
+                    ),
+                  ],
                   Container(
                   margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                   child: Text.rich(
@@ -232,6 +247,7 @@ class _homePageState extends State<homePage> {
                         )
                       ])),
                 ),
+                if (element.owner != prefs.getString("id")) ... [
                   Container(
                     margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                     child: Align(
@@ -248,6 +264,24 @@ class _homePageState extends State<homePage> {
                         ),
                     ),
                   ),
+                ] else ...[
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: MaterialButton(
+                        elevation: 2,
+                        color: Colors.greenAccent,
+                        child: Text("Remove"),
+                        onPressed: () {
+                          removeEvent(element.eventId);
+                          setState(() {
+                          });
+                        }
+                        ),
+                    ),
+                  ),
+                ]
                 ],
               ),
             )
@@ -382,6 +416,31 @@ class _homePageState extends State<homePage> {
     }
   }
 
+    Future<void> removeEvent(eventId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    JsonDecoder decoder = const JsonDecoder();
+
+    final response = await http.delete(Uri.parse('http://13.231.75.235:8080/removeEvent'), 
+    body: jsonEncode(
+      {
+        "id" : eventId
+      }
+    )).timeout(const Duration(seconds: 5));
+    
+    // OK status
+    if (response.statusCode == 200) {
+      var converted = decoder.convert(response.body);
+      // check for ok in err_msg
+      if (converted['err_msg'] != "ok") {
+        throw Exception(converted['err_msg']);
+      } else {
+        return converted['body'][0];
+      }
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
+
   Future<List<Event>> getEvents() async {
     JsonDecoder decoder = const JsonDecoder();
     List<Event> ret = List.empty(growable: true);
@@ -399,7 +458,7 @@ class _homePageState extends State<homePage> {
       if (converted['body'][0] != null) {
         for (var element in converted['body'][0]) {
             List<int> userIdList = List<int>.from(element['user_id']);
-            var temp = Event(userIdList, element['event_id'], element['name'], element['description'], DateTime.parse(element['date_time']), element['size']);
+            var temp = Event(userIdList, element['event_id'], element['name'], element['description'], DateTime.parse(element['date_time']), element['size'], element['owner']);
             ret.add(temp);
           }
         }                  
@@ -460,7 +519,7 @@ class _homePageState extends State<homePage> {
                     onPressed: () {
                       DatePicker.showDateTimePicker(context,
                         showTitleActions: true,
-                        minTime: DateTime.now().add(const Duration(days: 1)),
+                        minTime: DateTime.now(),
                         maxTime: DateTime.now().add(const Duration(days: 3650)), 
                         onConfirm: (date) {
                           setState(() {
@@ -519,7 +578,7 @@ class _homePageState extends State<homePage> {
         "size" : size,
         "name" : name,
         "description" : description,
-        "date_time" : "${datetime.toIso8601String()}Z"}))
+        "date_time" : "${datetime.toIso8601String()}Z",}))
       .timeout(const Duration(seconds: 5));
     
     // OK status
@@ -581,10 +640,11 @@ class _homePageState extends State<homePage> {
     List<Center> tags = await requestTags(prefs.getString('id')!);
     
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           alignment: Alignment.center,
-          margin: const EdgeInsets.fromLTRB(0, 40, 0, 0),
+          margin: const EdgeInsets.fromLTRB(20, 40, 0, 0),
           child: Card(
             elevation: 4,
             shape: const CircleBorder(),
@@ -595,42 +655,47 @@ class _homePageState extends State<homePage> {
           )
         ),
         Container(
-          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+          margin: const EdgeInsets.fromLTRB(20, 26, 0, 0),
+          child: Text("Name: \n${prefs.getString('name')!}", style: const TextStyle(fontSize: 24),)),
+        Container(
+          margin: const EdgeInsets.fromLTRB(20, 12, 0, 0),
+          child: Text("Age: \n${prefs.getInt('age').toString()}", style: const TextStyle(fontSize: 18),)),
+        Container(
+          margin: const EdgeInsets.fromLTRB(20, 12, 0, 0),
+          child: Text("Bio: \n${prefs.getString('bio')!}", style: const TextStyle(fontSize: 18),)),
+        Container(
+          alignment: Alignment.center,
+          margin: const EdgeInsets.fromLTRB(20, 26, 0, 0),
           child: MaterialButton(
             color: Colors.amber,
             elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
             onPressed: () {
               Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : prefs.getString('id'), "isFirstTime": false});
             },
-            child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 20),)),
+            child: const Text('Edit Profile', style: TextStyle(color: Colors.white, fontSize: 20),)),
         ),
         Container(
-          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-          child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 24),)),
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-          child: Text(prefs.getInt('age').toString(), style: const TextStyle(fontSize: 18),)),
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-          child: Text(prefs.getString('name')!, style: const TextStyle(fontSize: 12),)),
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+          margin: const EdgeInsets.fromLTRB(20, 12, 0, 0),
           child: const Text('Tags', style: TextStyle(fontSize: 24),)),
-        SizedBox(
-          height: 80,
-          child: Center(
-            child: ListView(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(20),
-              scrollDirection: Axis.horizontal,
-              children: tags,
-            ),
-          )
+        Container(
+          margin: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: SizedBox(
+            height: 50,
+            child: Center(
+              child: ListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.fromLTRB(20, 5, 0, 5),
+                scrollDirection: Axis.horizontal,
+                children: tags,
+              ),
+            )
+          ),
         ),
         Container(
-          margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+          margin: const EdgeInsets.fromLTRB(20, 12, 0, 0),
           child: MaterialButton(
+            color: Colors.greenAccent,
             onPressed: () {
               prefs.setBool('hasLoggedIn', false);
               Navigator.popAndPushNamed(context, '/login');
@@ -1011,7 +1076,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
   Future<Card> makeChatCard(Profile msgObj) async {
     return Card(
       margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-      color: Colors.blueAccent,
+      color: Colors.amber,
       elevation: 4,
       child: InkWell(
         onTap: () {
