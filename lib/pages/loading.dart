@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,12 +18,9 @@ class _loadingState extends State<loading> {
 
   @override
   Widget build(BuildContext context) {
-    precacheImage(const AssetImage('assets/loadingwallpaper.png'), context);
     precacheImage(const AssetImage('assets/logo.png'), context);
-    ImageProvider loadedWallpaper = const AssetImage('assets/loadingwallpaper.png');
     ImageProvider logo = const AssetImage('assets/logo.png');
     
-
     return Scaffold(
       body: FutureBuilder(
         future: loadingActions(), 
@@ -36,13 +35,7 @@ class _loadingState extends State<loading> {
           }
         });
         return Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: loadedWallpaper,
-              fit: BoxFit.cover,
-            ),
-          ),
-
+          
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -79,7 +72,7 @@ class _loadingState extends State<loading> {
   Future<void> geolocationPerms() async {  
     LocationPermission permission;
     permission = await Geolocator.checkPermission();
-    while (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
       showDialog(
           context: context, 
           builder: (context) {
@@ -95,13 +88,18 @@ class _loadingState extends State<loading> {
           }
         ).then((val) async {
           await Geolocator.requestPermission();
-          SystemNavigator.pop();
+          permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+            exit(0);
+          }
         });
-      permission = await Geolocator.checkPermission();
     }
   }
 
   Future<bool> loadingActions() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('GPSLogging', true);
+
     // login state
     LoggedIn = await hasLoggedIn();
 

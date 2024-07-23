@@ -88,7 +88,7 @@ class _homePageState extends State<homePage> {
           case 3:
             return await myProfile();
           case 4:
-            return settingPage();
+            return await settingPage();
           default:
             return await matchedPage();
         }
@@ -1103,6 +1103,8 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
     );
   }
 
+  // Chat
+  
   Future<List<Card>?> getChatable() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString("id"));
@@ -1155,16 +1157,6 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
     );
   }
 
-  // TODO: implement logic for this
-  Widget myChat() {
-    return Column(
-      children: <Widget>[
-        myChatBubble('hello, its me'),
-        otherChatBubble('i see its me'),
-      ],
-    );
-  }
-
   Widget myChatBubble(String text) {
     return BubbleNormal(
       color: Colors.grey.shade300,
@@ -1184,14 +1176,10 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
     );
   }
 
+  // Settings
+  Future<Widget> settingPage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  // TODO: this is not very elegant, change this soon
-  // the default values of settings
-  // MUST BE GLOBAL unless better solution is found
-  bool settingsBoolean1 = false;
-  bool settingsBoolean2 = true;
-
-  Widget settingPage() {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
@@ -1201,35 +1189,35 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('placeholder 1'),
+              const Text('Allow the app to log your GPS activities'),
               Switch(
-                value: settingsBoolean1, 
-                onChanged: (bool val){
-                  setState(() {
-                    settingsBoolean1 = val;
-                  });
+                value: prefs.getBool('GPSLogging')!, 
+                onChanged: (bool val) async {
+                    await prefs.setBool('GPSLogging', val);
+                    setState(() {
+                    });
                 }
                 )
               ],
                 ),
         ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('placeholder 2'),
-              Switch(
-                value: settingsBoolean2, 
-                onChanged: (bool val){
-                  setState(() {
-                    settingsBoolean2 = val;
-                  });
-                }
-                )
-              ],
-                ),
-        ),
+        // Container(
+        //   margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       const Text('placeholder 2'),
+        //       Switch(
+        //         value: settingsBoolean2, 
+        //         onChanged: (bool val){
+        //           setState(() {
+        //             settingsBoolean2 = val;
+        //           });
+        //         }
+        //         )
+        //       ],
+        //         ),
+        // ),
          ],
       ),
     );

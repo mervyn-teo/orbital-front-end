@@ -32,13 +32,13 @@ void main() {
   routes: routes,
   )); 
   
+
   // upload location
-  Timer.periodic(const Duration(seconds: 10), (timer) async {
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    if (prefs.getBool('hasLoggedIn') != null && prefs.getBool('hasLoggedIn')! ) {
+    if (prefs.getBool('hasLoggedIn') != null && prefs.getBool('hasLoggedIn')! && prefs.getBool('GPSLogging')!) {
       //upload geolocation data
-
       Position currPos = await Geolocator.getCurrentPosition();
       JsonDecoder decoder = const JsonDecoder();
 
