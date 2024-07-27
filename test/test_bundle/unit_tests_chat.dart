@@ -37,11 +37,17 @@ void main() {
       when(mockSharedPreferences.getString('id')).thenReturn('mocked_id');
 
       // Build the widget
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: myChat(),
-        ),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          onGenerateRoute: (settings) {
+            return MaterialPageRoute(
+              settings: RouteSettings(arguments: {'oppProfile' : mockProfile}),
+              builder: (context) {
+                return myChat();
+              },
+            );
+          },
+        ));
 
       // Verify that the app bar shows the correct profile information
       expect(find.text(mockProfile.name), findsOneWidget);
@@ -75,11 +81,17 @@ void main() {
               }), 200));
 
       // Build the widget
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: myChat(),
-        ),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          onGenerateRoute: (settings) {
+            return MaterialPageRoute(
+              settings: RouteSettings(arguments: {'oppProfile' : mockProfile}),
+              builder: (context) {
+                return myChat();
+              },
+            );
+          },
+        ));
 
       // Enter text in the message field and tap send button
       await tester.enterText(find.byType(TextField), 'Hello');
