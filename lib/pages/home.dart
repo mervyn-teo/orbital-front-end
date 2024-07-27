@@ -10,6 +10,7 @@ import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:add_2_calendar/add_2_calendar.dart'as calender;
 
 Profile myProf = Profile('Zhang Haodong', 'dassdas', 2121, 'i love trains', 'assets/default_profile.png');
 
@@ -70,7 +71,7 @@ class _homePageState extends State<homePage> {
               children = Text(snapshot.error.toString());
             } else {
               children = const Text('Loading...');
-            } // TODO: this cant handle situation gracefully when server is down
+            } 
             return children;
           },),
       ),
@@ -148,141 +149,173 @@ class _homePageState extends State<homePage> {
             margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             color: Colors.amberAccent,
             elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [ 
-                  if (element.owner != prefs.getString("id")) ...[
+            child: InkWell(
+              onTap: () {
+                showDialog(
+                  context: context, 
+                  builder: (context) {
+                    return AlertDialog(
+                      content: const Text("Add this event to your calender?"),
+                      actions: [
+                        MaterialButton(
+                          child: const Text("Cancel"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }
+                          ),
+                        MaterialButton(
+                          child: const Text("OK"),
+                          onPressed: () {
+                            calender.Event event = calender.Event(
+                              title: element.name,
+                              description: element.description,
+                              startDate: element.dateTime,
+                              endDate: element.dateTime.add(const Duration(days: 1)),
+                            );
+                            calender.Add2Calendar.addEvent2Cal(event);
+                            Navigator.pop(context);
+                          }
+                          )
+                      ],
+                    );
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [ 
+                    if (element.owner != prefs.getString("id")) ...[
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
+                        child:  const Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            'Participated',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: Colors.black54,
+                            ),),
+                        ),
+                      ),
+                    ] else ...[
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
+                        child:  const Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            'Owner',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: Colors.black54,
+                            ),),
+                        ),
+                      ),
+                    ],
                     Container(
-                      margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
-                      child:  const Align(
+                    margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Event Name: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "\n${element.name}",
+                            style: const TextStyle(
+                              fontSize: 17,
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
+                          )
+                        ])),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Event Description: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "\n${element.description}",
+                            style: const TextStyle(
+                              fontSize: 17,
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
+                          )
+                        ])),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Date and time: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "\n${element.dateTime}",
+                            style: const TextStyle(
+                              fontSize: 17,
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
+                          )
+                        ])),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Numbers of participents: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "${element.userId.length}/${element.size}",
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
+                          )
+                        ])),
+                  ),
+                  if (element.owner != prefs.getString("id")) ... [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                      child: Align(
                         alignment: Alignment.centerRight,
-                        child: Text(
-                          'Participated',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            color: Colors.black54,
-                          ),),
+                        child: MaterialButton(
+                          elevation: 2,
+                          color: Colors.greenAccent,
+                          child: Text("Withdraw"),
+                          onPressed: () {
+                            quitEvent(element.eventId);
+                            setState(() {
+                            });
+                          }
+                          ),
                       ),
                     ),
                   ] else ...[
                     Container(
-                      margin: const EdgeInsets.fromLTRB(0, 10, 10, 0),
-                      child:  const Align(
+                      margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                      child: Align(
                         alignment: Alignment.centerRight,
-                        child: Text(
-                          'Owner',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            color: Colors.black54,
-                          ),),
+                        child: MaterialButton(
+                          elevation: 2,
+                          color: Colors.greenAccent,
+                          child: Text("Remove"),
+                          onPressed: () {
+                            removeEvent(element.eventId);
+                            setState(() {
+                            });
+                          }
+                          ),
                       ),
                     ),
+                  ]
                   ],
-                  Container(
-                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Event Name: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "\n${element.name}",
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 0, 114, 172)
-                          )
-                        )
-                      ])),
                 ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Event Description: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "\n${element.description}",
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 0, 114, 172)
-                          )
-                        )
-                      ])),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Date and time: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "\n${element.dateTime}",
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 0, 114, 172)
-                          )
-                        )
-                      ])),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Numbers of participents: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "${element.userId.length}/${element.size}",
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 0, 114, 172)
-                          )
-                        )
-                      ])),
-                ),
-                if (element.owner != prefs.getString("id")) ... [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: MaterialButton(
-                        elevation: 2,
-                        color: Colors.greenAccent,
-                        child: Text("Withdraw"),
-                        onPressed: () {
-                          quitEvent(element.eventId);
-                          setState(() {
-                          });
-                        }
-                        ),
-                    ),
-                  ),
-                ] else ...[
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: MaterialButton(
-                        elevation: 2,
-                        color: Colors.greenAccent,
-                        child: Text("Remove"),
-                        onPressed: () {
-                          removeEvent(element.eventId);
-                          setState(() {
-                          });
-                        }
-                        ),
-                    ),
-                  ),
-                ]
-                ],
               ),
             )
           ));
@@ -291,97 +324,129 @@ class _homePageState extends State<homePage> {
         margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
         color: Colors.amberAccent,
         elevation: 4,
-        child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                  Container(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Event Name: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "\n${element.name}",
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 0, 114, 172)
+        child: InkWell(
+          onTap: () {
+                showDialog(
+                  context: context, 
+                  builder: (context) {
+                    return AlertDialog(
+                      content: const Text("Add this event to your calender?"),
+                      actions: [
+                        MaterialButton(
+                          child: const Text("Cancel"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }
+                          ),
+                        MaterialButton(
+                          child: const Text("OK"),
+                          onPressed: () {
+                            calender.Event event = calender.Event(
+                              title: element.name,
+                              description: element.description,
+                              startDate: element.dateTime,
+                              endDate: element.dateTime.add(const Duration(days: 1)),
+                            );
+                            calender.Add2Calendar.addEvent2Cal(event);
+                            Navigator.pop(context);
+                          }
                           )
-                        )
-                      ])),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Event Description: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "\n${element.description}",
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 0, 114, 172)
+                      ],
+                    );
+                });
+              },
+          child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                    Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Event Name: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "\n${element.name}",
+                            style: const TextStyle(
+                              fontSize: 17,
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
                           )
-                        )
-                      ])),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Date and time: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "\n${element.dateTime}",
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 0, 114, 172)
-                          )
-                        )
-                      ])),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Numbers of participents: ",
-                      style: const TextStyle(
-                        fontSize: 20
-                      ), children: <InlineSpan>[
-                        TextSpan(
-                          text: "${element.userId.length}/${element.size}",
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 0, 114, 172)
-                          )
-                        )
-                      ])),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: MaterialButton(
-                      elevation: 2,
-                      color: Colors.greenAccent,
-                      child: Text("join"),
-                      onPressed: () {
-                        joinEvent(element.eventId);
-                        setState(() {
-                        });
-                      }
-                      ),
+                        ])),
                   ),
-                )
-              ],
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Event Description: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "\n${element.description}",
+                            style: const TextStyle(
+                              fontSize: 17,
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
+                          )
+                        ])),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Date and time: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "\n${element.dateTime}",
+                            style: const TextStyle(
+                              fontSize: 17,
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
+                          )
+                        ])),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "Numbers of participents: ",
+                        style: const TextStyle(
+                          fontSize: 20
+                        ), children: <InlineSpan>[
+                          TextSpan(
+                            text: "${element.userId.length}/${element.size}",
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 0, 114, 172)
+                            )
+                          )
+                        ])),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: MaterialButton(
+                        elevation: 2,
+                        color: Colors.greenAccent,
+                        child: Text("join"),
+                        onPressed: () {
+                          joinEvent(element.eventId);
+                          setState(() {
+                          });
+                        }
+                        ),
+                    ),
+                  )
+                ],
+              ),
             ),
-          )
+        )
         ));
         }
       }
@@ -673,7 +738,7 @@ class _homePageState extends State<homePage> {
             onPressed: () {
               Navigator.popAndPushNamed(context, "/profilesetting", arguments: {"id" : prefs.getString('id'), "isFirstTime": false});
             },
-            child: const Text('Edit Profile', style: TextStyle(color: Colors.white, fontSize: 20),)),
+            child: const Text('Edit Profile', style: TextStyle(color: Colors.black, fontSize: 20),)),
         ),
         Container(
           margin: const EdgeInsets.fromLTRB(20, 12, 0, 0),
@@ -1104,7 +1169,7 @@ Future<void> _displayTextInputDialog(BuildContext context) async {
   }
 
   // Chat
-  
+
   Future<List<Card>?> getChatable() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString("id"));

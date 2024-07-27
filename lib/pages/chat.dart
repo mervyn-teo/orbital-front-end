@@ -95,7 +95,29 @@ class _ChatState extends State<myChat> {
                   ),
                   color: Colors.red,
                   onPressed: () async {
-                    report(oppProfile.id);
+                    showDialog(
+                      context: context, 
+                      builder: (context) {
+                        return AlertDialog(
+                          content: const Text("Are you sure you want to report this person?"),
+                          actions: [
+                            MaterialButton(
+                              child: const Text("Cancel"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              }
+                              ),
+                            MaterialButton(
+                              child: const Text("OK"),
+                              onPressed: () {
+                                report(oppProfile.id);
+                                Navigator.pop(context);
+                              }
+                              )
+                          ],
+                        );
+                      }
+                      );
                   },
                   child: const Text(
                     "report",
